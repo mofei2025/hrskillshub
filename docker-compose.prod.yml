@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: hrskillshub
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: hrskillshub
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://hrskillshub:${DB_PASSWORD}@postgres:5432/hrskillshub
+      AUTH_SECRET: ${AUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      OSS_REGION: ${OSS_REGION}
+      OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID}
+      OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET}
+      OSS_BUCKET: ${OSS_BUCKET}
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

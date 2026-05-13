@@ -17,7 +17,7 @@ export function Nav() {
   return (
     <header className="border-b bg-white sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-xl text-blue-600">
+        <Link href="/" className="font-bold text-xl text-[#600df9]">
           HRSkillsHub
         </Link>
 
@@ -32,7 +32,7 @@ export function Nav() {
                 <Button size="sm">分享 Skill</Button>
               </Link>
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger className="rounded-full outline-none">
                   <Avatar className="h-8 w-8 cursor-pointer">
                     <AvatarFallback>
                       {session.user?.name?.[0] ?? 'U'}
@@ -40,9 +40,14 @@ export function Nav() {
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">个人中心</Link>
+                  <DropdownMenuItem>
+                    <Link href="/profile" className="w-full">个人中心</Link>
                   </DropdownMenuItem>
+                  {(session.user as any)?.role === 'ADMIN' && (
+                    <DropdownMenuItem>
+                      <Link href="/admin" className="w-full">管理后台</Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => signOut()}>
                     退出登录
                   </DropdownMenuItem>

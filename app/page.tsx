@@ -26,23 +26,23 @@ export default async function HomePage() {
   return (
     <div>
       {/* 英雄区 */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-20 px-4">
+      <section className="bg-[#161317] text-white py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">
             HR 专属的 AI Skills 分享平台
           </h1>
-          <p className="text-blue-100 text-lg mb-8">
+          <p className="text-[#dcd6d6] text-lg mb-8">
             找到适合你的 AI 提示词和 Skills，让 DeepSeek、ChatGPT、Claude 成为你的 HR 助手
           </p>
           <div className="flex gap-3 max-w-lg mx-auto">
             <Link href="/skills" className="flex-1">
-              <Button size="lg" variant="secondary" className="w-full gap-2">
+              <Button size="lg" className="w-full gap-2 bg-[#600df9] hover:bg-[#5200e0] text-white">
                 <Search className="h-4 w-4" />
                 浏览所有 Skills
               </Button>
             </Link>
             <Link href="/submit">
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-blue-700">
+              <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-[#161317]">
                 分享我的 Skill
               </Button>
             </Link>
@@ -66,7 +66,7 @@ export default async function HomePage() {
       <section className="max-w-6xl mx-auto px-4 pb-16">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">热门 Skills</h2>
-          <Link href="/skills" className="text-sm text-blue-600 hover:underline">
+          <Link href="/skills" className="text-sm text-[#600df9] hover:underline">
             查看全部 →
           </Link>
         </div>
