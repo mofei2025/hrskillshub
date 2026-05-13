@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  password      String
+  nickname      String
+  role          Role       @default(USER)
+  avatarUrl     String?
+  createdAt     DateTime   @default(now())
+
+  skills        Skill[]
+  favorites     Favorite[]
+  downloads     Download[]
+  comments      Comment[]
+  reviews       Review[]
+  sessions      Session[]
+  accounts      Account[]
+}
+
+enum Role {
+  USER
+  CONTRIBUTOR
+  ADMIN
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  skills    Skill[]
+}
+
+model Skill {
+  id            String      @id @default(cuid())
+  title         String
+  description   String
+  content       String?     @db.Text
+  fileUrl       String?
+  type          SkillType
+  compatibleAi  String[]
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id])
+  installCount  Int         @default(0)
+  favoriteCount Int         @default(0)
+  downloadCount Int         @default(0)
+  authorId      String
+  author        User        @relation(fields: [authorId], references: [id])
+  status        SkillStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  publishedAt   DateTime?
+
+  favorites     Favorite[]
+  downloads     Download[]
+  comments      Comment[]
+  reviews       Review[]
+}
+
+enum SkillType {
+  PROMPT
+  CLAUDE_SKILL
+}
+
+enum SkillStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  skillId   String
+  user      User     @relation(fields: [userId], references: [id])
+  skill     Skill    @relation(fields: [skillId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, skillId])
+}
+
+model Download {
+  id          String      @id @default(cuid())
+  skillId     String
+  userId      String
+  installType InstallType
+  skill       Skill       @relation(fields: [skillId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+  createdAt   DateTime    @default(now())
+}
+
+enum InstallType {
+  COPY_PROMPT
+  COPY_COMMAND
+  DOWNLOAD_FILE
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  skillId   String
+  userId    String
+  content   String
+  rating    Int
+  skill     Skill    @relation(fields: [skillId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id        String       @id @default(cuid())
+  skillId   String
+  adminId   String
+  action    ReviewAction
+  feedback  String?
+  skill     Skill        @relation(fields: [skillId], references: [id])
+  admin     User         @relation(fields: [adminId], references: [id])
+  createdAt DateTime     @default(now())
+}
+
+enum ReviewAction {
+  APPROVED
+  REJECTED
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
