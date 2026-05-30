@@ -34,10 +34,16 @@ const gradeDisplay = {
   PENDING: { label: '待评级', color: 'text-muted-foreground', bg: 'bg-[var(--hero-bg)]', icon: Shield },
 }
 
+function isSecurityNote(item: unknown): item is SecurityNote {
+  if (typeof item !== 'object' || item === null) return false
+  const obj = item as Record<string, unknown>
+  return typeof obj.category === 'string' || typeof obj.description === 'string'
+}
+
 export function SecurityPanel({ grade, score, notes }: SecurityPanelProps) {
   const display = gradeDisplay[grade]
   const Icon = display.icon
-  const securityNotes = Array.isArray(notes) ? (notes as SecurityNote[]) : []
+  const securityNotes = Array.isArray(notes) ? notes.filter(isSecurityNote) : []
 
   return (
     <div className="border border-border">

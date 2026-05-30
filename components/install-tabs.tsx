@@ -37,11 +37,18 @@ export function InstallTabs({ skillId, slug, content, fileUrl }: InstallTabsProp
   }
 
   async function handleDownload() {
-    await fetch(`/api/skills/${skillId}/download`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ installType: 'DOWNLOAD_FILE' }),
-    })
+    try {
+      const res = await fetch(`/api/skills/${skillId}/download`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ installType: 'DOWNLOAD_FILE' }),
+      })
+      if (!res.ok) {
+        console.warn('下载统计记录失败:', res.status)
+      }
+    } catch (error) {
+      console.warn('下载统计请求失败:', error)
+    }
     if (fileUrl) {
       window.open(fileUrl, '_blank')
     }
