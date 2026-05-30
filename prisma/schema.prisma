@@ -13,6 +13,7 @@ model User {
   nickname      String
   role          Role       @default(USER)
   avatarUrl     String?
+  bio           String?
   createdAt     DateTime   @default(now())
 
   skills        Skill[]
@@ -22,6 +23,8 @@ model User {
   reviews       Review[]
   sessions      Session[]
   accounts      Account[]
+  followedBy    Follow[]   @relation("following")
+  following     Follow[]   @relation("follower")
 }
 
 enum Role {
@@ -39,28 +42,34 @@ model Category {
 }
 
 model Skill {
-  id            String      @id @default(cuid())
-  title         String
-  description   String
-  content       String?     @db.Text
-  fileUrl       String?
-  type          SkillType
-  compatibleAi  String[]
-  categoryId    String
-  category      Category    @relation(fields: [categoryId], references: [id])
-  installCount  Int         @default(0)
-  favoriteCount Int         @default(0)
-  downloadCount Int         @default(0)
-  authorId      String
-  author        User        @relation(fields: [authorId], references: [id])
-  status        SkillStatus @default(PENDING)
-  createdAt     DateTime    @default(now())
-  publishedAt   DateTime?
+  id                   String        @id @default(cuid())
+  title                String
+  description          String
+  content              String?       @db.Text
+  fileUrl              String?
+  type                 SkillType
+  compatibleAi         String[]
+  categoryId           String
+  category             Category      @relation(fields: [categoryId], references: [id])
+  installCount         Int           @default(0)
+  favoriteCount        Int           @default(0)
+  downloadCount        Int           @default(0)
+  authorId             String
+  author               User          @relation(fields: [authorId], references: [id])
+  status               SkillStatus   @default(PENDING)
+  version              String        @default("1.0.0")
+  securityGrade        SecurityGrade @default(PENDING)
+  securityScore        Int?
+  securityNotes        Json?
+  securityOverriddenBy String?
+  createdAt            DateTime      @default(now())
+  publishedAt          DateTime?
 
   favorites     Favorite[]
   downloads     Download[]
   comments      Comment[]
   reviews       Review[]
+  versions      SkillVersion[]
 }
 
 enum SkillType {
@@ -72,6 +81,33 @@ enum SkillStatus {
   PENDING
   PUBLISHED
   REJECTED
+}
+
+enum SecurityGrade {
+  A
+  B
+  C
+  PENDING
+}
+
+model SkillVersion {
+  id        String   @id @default(cuid())
+  skillId   String
+  version   String
+  changelog String
+  createdAt DateTime @default(now())
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  following   User     @relation("following", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
 }
 
 model Favorite {
