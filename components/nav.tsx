@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { auth } from '@/lib/auth'
 import { ThemeToggle } from './theme-toggle'
+import { SignOutButton } from './sign-out-button'
 
 export async function Nav() {
   const session = await auth()
@@ -66,6 +67,7 @@ export async function Nav() {
               >
                 {session.user?.name ?? '我的'}
               </Link>
+              <SignOutButton />
             </div>
           ) : (
             <Link
