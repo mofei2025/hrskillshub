@@ -56,7 +56,7 @@ export default async function AdminSkillsPage({
               <th className="text-left px-4 py-3 font-medium text-gray-600 w-20">作者</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600 w-24">状态</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600 w-28">提交时间</th>
-              <th className="px-4 py-3 w-44"></th>
+              <th className="px-4 py-3 w-64"></th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -75,7 +75,7 @@ export default async function AdminSkillsPage({
                     {new Date(skill.createdAt).toLocaleDateString('zh-CN')}
                   </td>
                   <td className="px-4 py-3">
-                    <SkillRowActions skillId={skill.id} currentStatus={skill.status} />
+                    <SkillRowActions skillId={skill.id} currentStatus={skill.status} initialGrade={skill.securityGrade} />
                   </td>
                 </tr>
               )
