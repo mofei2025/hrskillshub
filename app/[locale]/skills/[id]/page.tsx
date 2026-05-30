@@ -10,7 +10,7 @@ import { RelatedSkills } from '@/components/related-skills'
 import { SecurityPanel } from '@/components/security-panel'
 import { FavoriteButton } from '@/components/favorite-button'
 import { CommentSection } from '@/components/comment-section'
-import { Download, Star, User, ChevronRight, Tag } from 'lucide-react'
+import { Download, Star, User, ChevronRight } from 'lucide-react'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -47,6 +47,18 @@ export default async function SkillDetailPage({ params }: PageProps) {
 
   const avgRating = avgRatingResult._avg.rating?.toFixed(1) ?? null
 
+  // 从 GitHub URL 或 id 推导 skill 目录名
+  function deriveSkillName(): string {
+    if (!skill.fileUrl) return id.slice(0, 12)
+    try {
+      const parts = new URL(skill.fileUrl).pathname.split('/').filter(Boolean)
+      return parts[parts.length - 1] ?? id.slice(0, 12)
+    } catch {
+      return id.slice(0, 12)
+    }
+  }
+  const skillName = deriveSkillName()
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* 面包屑 */}
@@ -70,7 +82,7 @@ export default async function SkillDetailPage({ params }: PageProps) {
               {skill.category.name}
             </Link>
             <span className="text-xs font-mono border border-border px-2 py-1 text-muted-foreground">
-              {skill.type === 'CLAUDE_SKILL' ? 'Claude Skill' : 'Prompt'}
+              Skill
             </span>
             <GradeBadge grade={skill.securityGrade} size="sm" />
             <span className="text-xs font-mono text-muted-foreground">
@@ -112,10 +124,11 @@ export default async function SkillDetailPage({ params }: PageProps) {
           {/* 安装方式 */}
           <div>
             <h2 className="font-heading text-sm font-black uppercase tracking-tight mb-3">
-              安装方式
+              下载 / 安装
             </h2>
             <InstallTabs
               skillId={id}
+              slug={skillName}
               content={skill.content}
               fileUrl={skill.fileUrl}
             />
@@ -181,28 +194,6 @@ export default async function SkillDetailPage({ params }: PageProps) {
             score={skill.securityScore}
             notes={skill.securityNotes}
           />
-
-          {/* 兼容 AI */}
-          {skill.compatibleAi.length > 0 && (
-            <div className="border border-border">
-              <div className="px-4 py-3 border-b border-border bg-[var(--hero-bg)]">
-                <h3 className="font-heading text-sm font-black uppercase tracking-tight flex items-center gap-2">
-                  <Tag size={14} />
-                  兼容 AI
-                </h3>
-              </div>
-              <div className="p-4 flex flex-wrap gap-2">
-                {skill.compatibleAi.map((ai) => (
-                  <span
-                    key={ai}
-                    className="text-xs font-mono border border-border px-2 py-1 text-muted-foreground"
-                  >
-                    {ai}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* 相关推荐 */}
           <RelatedSkills skillId={id} categoryId={skill.categoryId} />
