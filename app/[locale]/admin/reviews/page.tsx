@@ -28,7 +28,7 @@ export default async function ReviewsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {skills.map((skill) => (
+          {skills.map((skill: typeof skills[0]) => (
             <ReviewActions key={skill.id} skill={skill} />
           ))}
         </div>
