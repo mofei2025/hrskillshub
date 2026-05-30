@@ -1,15 +1,17 @@
 import { Suspense } from 'react'
 import { db } from '@/lib/db'
+import { SecurityGrade } from '@prisma/client'
 import { SkillCard } from '@/components/skill-card'
 import { SkillFilters } from '@/components/skill-filters'
 
 async function getSkills(searchParams: Record<string, string>) {
-  const { category, type, ai, sort, q } = searchParams
+  const { category, type, ai, sort, q, grade } = searchParams
 
   const where: any = { status: 'PUBLISHED' }
   if (category) where.category = { slug: category }
   if (type) where.type = type.toUpperCase()
   if (ai) where.compatibleAi = { has: ai }
+  if (grade && grade !== 'ALL') where.securityGrade = grade as SecurityGrade
   if (q)
     where.OR = [
       { title: { contains: q, mode: 'insensitive' } },

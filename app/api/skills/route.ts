@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { SecurityGrade } from '@prisma/client'
 
 // GET /api/skills - 获取 Skill 列表
 export async function GET(req: NextRequest) {
@@ -10,11 +11,13 @@ export async function GET(req: NextRequest) {
   const ai = searchParams.get('ai')
   const sort = searchParams.get('sort') ?? 'newest'
   const q = searchParams.get('q')
+  const grade = searchParams.get('grade')
 
   const where: any = { status: 'PUBLISHED' }
   if (category) where.category = { slug: category }
   if (type) where.type = type.toUpperCase()
   if (ai) where.compatibleAi = { has: ai }
+  if (grade && grade !== 'ALL') where.securityGrade = grade as SecurityGrade
   if (q) where.OR = [
     { title: { contains: q, mode: 'insensitive' } },
     { description: { contains: q, mode: 'insensitive' } },

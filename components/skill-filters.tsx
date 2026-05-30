@@ -49,6 +49,7 @@ export function SkillFilters() {
     type: searchParams.get('type') ?? '',
     ai: searchParams.get('ai') ?? '',
     sort: searchParams.get('sort') ?? 'newest',
+    grade: searchParams.get('grade') ?? '',
   }
 
   return (
@@ -113,6 +114,33 @@ export function SkillFilters() {
             >
               {s.label}
             </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grade 安全等级筛选 */}
+      <div>
+        <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
+          安全等级
+        </label>
+        <div className="flex gap-1 flex-wrap">
+          {[
+            { value: 'ALL', label: '全部' },
+            { value: 'A', label: '✓ A' },
+            { value: 'B', label: 'B' },
+            { value: 'C', label: 'C' },
+          ].map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setParam('grade', value === 'ALL' ? '' : value)}
+              className={`text-xs px-2 py-1 border transition-colors ${
+                (current.grade || 'ALL') === value
+                  ? 'bg-brand text-white border-brand'
+                  : 'border-border hover:border-foreground'
+              }`}
+            >
+              {label}
+            </button>
           ))}
         </div>
       </div>
