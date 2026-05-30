@@ -22,7 +22,6 @@ async function getAllSkills(page: number) {
         type: true,
         status: true,
         securityGrade: true,
-        content: true,
         fileUrl: true,
         createdAt: true,
         categoryId: true,

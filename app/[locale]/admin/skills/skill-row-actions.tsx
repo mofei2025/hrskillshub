@@ -33,7 +33,6 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
   const [editTitle, setEditTitle] = useState(skill.title)
   const [editDesc, setEditDesc] = useState(skill.description)
   const [editCategoryId, setEditCategoryId] = useState(skill.categoryId)
-  const [editContent, setEditContent] = useState(skill.content ?? '')
   const [editFileUrl, setEditFileUrl] = useState(skill.fileUrl ?? '')
   const [editError, setEditError] = useState('')
 
@@ -94,7 +93,6 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
           title: editTitle,
           description: editDesc,
           categoryId: editCategoryId,
-          content: editContent,
           fileUrl: editFileUrl || null,
         }),
       })
@@ -201,17 +199,6 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
                   onChange={e => setEditFileUrl(e.target.value)}
                   placeholder="https://github.com/username/repo"
                   className={`${inputCls} font-mono text-xs`}
-                />
-              </div>
-
-              {/* 内容 */}
-              <div>
-                <label className={labelCls}>Skill 内容</label>
-                <textarea
-                  value={editContent}
-                  onChange={e => setEditContent(e.target.value)}
-                  rows={10}
-                  className={`${inputCls} resize-y font-mono text-xs`}
                 />
               </div>
 

@@ -129,29 +129,9 @@ export default async function SkillDetailPage({ params }: PageProps) {
             <InstallTabs
               skillId={id}
               slug={skillName}
-              content={skill.content}
               fileUrl={skill.fileUrl}
             />
           </div>
-
-          {/* Skill 内容预览 */}
-          {skill.content && (
-            <div className="border border-border">
-              <div className="px-4 py-3 border-b border-border bg-[var(--hero-bg)] flex items-center justify-between">
-                <h2 className="font-heading text-sm font-black uppercase tracking-tight">
-                  内容预览
-                </h2>
-              </div>
-              <pre className="p-4 text-sm font-mono overflow-x-auto max-h-60 overflow-y-auto whitespace-pre-wrap text-muted-foreground">
-                {skill.content.slice(0, 1000)}
-                {skill.content.length > 1000 && (
-                  <span className="block mt-2 text-xs text-muted-foreground">
-                    …（完整内容通过安装获取）
-                  </span>
-                )}
-              </pre>
-            </div>
-          )}
 
           {/* 版本历史 */}
           <VersionHistory skillId={id} />

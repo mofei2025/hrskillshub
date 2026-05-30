@@ -21,7 +21,6 @@ export function SubmitTabs({ categories }: Props) {
     description: '',
     categoryId: categories[0]?.id ?? '',
     type: 'CLAUDE_SKILL' as const,
-    content: '',
     githubUrl: '',
   })
 
@@ -33,10 +32,6 @@ export function SubmitTabs({ categories }: Props) {
     e.preventDefault()
     if (!form.title.trim() || !form.description.trim() || !form.categoryId) {
       setError('请填写标题、描述并选择分类')
-      return
-    }
-    if (!form.content.trim()) {
-      setError('请填写内容')
       return
     }
     if (!form.githubUrl.trim()) {
@@ -59,7 +54,6 @@ export function SubmitTabs({ categories }: Props) {
           description: form.description.trim(),
           categoryId: form.categoryId,
           type: form.type,
-          content: form.content.trim(),
           fileUrl: form.githubUrl.trim() || undefined,
           compatibleAi: [],
         }),
@@ -140,24 +134,6 @@ export function SubmitTabs({ categories }: Props) {
         <p className="text-xs text-muted-foreground mt-1">
           指向包含此 Skill 文件的 GitHub 仓库或具体文件路径
         </p>
-      </div>
-
-      {/* 内容 */}
-      <div>
-        <label className={labelCls}>
-          Skill 内容 *
-          <span className="normal-case tracking-normal ml-2 text-muted-foreground/70">
-            （完整的 Skill 指令）
-          </span>
-        </label>
-        <textarea
-          value={form.content}
-          onChange={e => set('content', e.target.value)}
-          placeholder="在此粘贴完整内容..."
-          rows={10}
-          className={`${inputCls} resize-y font-mono text-xs`}
-          required
-        />
       </div>
 
       {/* 错误 */}
