@@ -13,5 +13,5 @@ export async function uploadToOSS(buffer: Buffer, filename: string): Promise<str
   const client = createOSSClient()
   const key = `skills/${Date.now()}-${filename}`
   const result = await client.put(key, buffer)
-  return result.url
+  return (result.url as string).replace(/^http:\/\//, 'https://')
 }

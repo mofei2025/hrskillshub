@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     const client = createOSSClient()
     const result = await client.put(filename, buffer)
-    const avatarUrl = result.url
+    const avatarUrl = (result.url as string).replace(/^http:\/\//, 'https://')
 
     await db.user.update({
       where: { id: session.user.id },

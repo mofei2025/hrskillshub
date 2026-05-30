@@ -7,6 +7,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.aliyuncs.com' },
+      { protocol: 'http', hostname: '*.aliyuncs.com' },
       { protocol: 'https', hostname: '*.githubusercontent.com' },
     ],
   },
