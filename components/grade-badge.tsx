@@ -13,7 +13,7 @@ const gradeConfig = {
 }
 
 export function GradeBadge({ grade, size = 'sm' }: GradeBadgeProps) {
-  const config = gradeConfig[grade]
+  const config = gradeConfig[grade] ?? gradeConfig.PENDING
   const sizeClass = size === 'sm' ? 'text-xs px-1.5 py-0.5' : 'text-sm px-2 py-1'
 
   return (
