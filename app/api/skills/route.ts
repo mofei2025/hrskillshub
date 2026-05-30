@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { SecurityGrade } from '@prisma/client'
+import { Prisma, SecurityGrade, SkillType } from '@prisma/client'
 
 // GET /api/skills - 获取 Skill 列表
 export async function GET(req: NextRequest) {
@@ -13,17 +13,33 @@ export async function GET(req: NextRequest) {
   const q = searchParams.get('q')
   const grade = searchParams.get('grade')
 
-  const where: any = { status: 'PUBLISHED' }
+  // 分页参数（默认第1页，每页50条，最大100条）
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') ?? '50', 10)))
+  const skip = (page - 1) * limit
+
+  const where: Prisma.SkillWhereInput = { status: 'PUBLISHED' }
   if (category) where.category = { slug: category }
-  if (type) where.type = type.toUpperCase()
   if (ai) where.compatibleAi = { has: ai }
-  if (grade && grade !== 'ALL') where.securityGrade = grade as SecurityGrade
+
+  // grade 枚举白名单校验
+  const VALID_GRADES: SecurityGrade[] = ['A', 'B', 'C', 'PENDING']
+  if (grade && grade !== 'ALL' && VALID_GRADES.includes(grade as SecurityGrade)) {
+    where.securityGrade = grade as SecurityGrade
+  }
+
+  // type 枚举白名单校验
+  const VALID_TYPES: SkillType[] = ['PROMPT', 'CLAUDE_SKILL']
+  if (type && VALID_TYPES.includes(type.toUpperCase() as SkillType)) {
+    where.type = type.toUpperCase() as SkillType
+  }
+
   if (q) where.OR = [
     { title: { contains: q, mode: 'insensitive' } },
     { description: { contains: q, mode: 'insensitive' } },
   ]
 
-  const orderBy: any =
+  const orderBy: Prisma.SkillOrderByWithRelationInput =
     sort === 'downloads' ? { downloadCount: 'desc' }
     : sort === 'favorites' ? { favoriteCount: 'desc' }
     : { publishedAt: 'desc' }
@@ -31,6 +47,8 @@ export async function GET(req: NextRequest) {
   const skills = await db.skill.findMany({
     where,
     orderBy,
+    take: limit,
+    skip,
     include: {
       author: { select: { nickname: true } },
       category: { select: { name: true, slug: true } },

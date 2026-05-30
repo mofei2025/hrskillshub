@@ -1,24 +1,35 @@
 import { Suspense } from 'react'
 import { db } from '@/lib/db'
-import { SecurityGrade } from '@prisma/client'
+import { Prisma, SecurityGrade, SkillType } from '@prisma/client'
 import { SkillCard } from '@/components/skill-card'
 import { SkillFilters } from '@/components/skill-filters'
 
 async function getSkills(searchParams: Record<string, string>) {
   const { category, type, ai, sort, q, grade } = searchParams
 
-  const where: any = { status: 'PUBLISHED' }
+  const where: Prisma.SkillWhereInput = { status: 'PUBLISHED' }
   if (category) where.category = { slug: category }
-  if (type) where.type = type.toUpperCase()
   if (ai) where.compatibleAi = { has: ai }
-  if (grade && grade !== 'ALL') where.securityGrade = grade as SecurityGrade
+
+  // grade 枚举白名单校验
+  const VALID_GRADES: SecurityGrade[] = ['A', 'B', 'C', 'PENDING']
+  if (grade && grade !== 'ALL' && VALID_GRADES.includes(grade as SecurityGrade)) {
+    where.securityGrade = grade as SecurityGrade
+  }
+
+  // type 枚举白名单校验
+  const VALID_TYPES: SkillType[] = ['PROMPT', 'CLAUDE_SKILL']
+  if (type && VALID_TYPES.includes(type.toUpperCase() as SkillType)) {
+    where.type = type.toUpperCase() as SkillType
+  }
+
   if (q)
     where.OR = [
       { title: { contains: q, mode: 'insensitive' } },
       { description: { contains: q, mode: 'insensitive' } },
     ]
 
-  const orderBy: any =
+  const orderBy: Prisma.SkillOrderByWithRelationInput =
     sort === 'downloads'
       ? { downloadCount: 'desc' }
       : sort === 'favorites'
@@ -46,7 +57,7 @@ export default async function SkillsPage({
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">浏览 Skills</h1>
 
-      <Suspense>
+      <Suspense fallback={<div className="h-20 bg-muted animate-pulse" />}>
         <SkillFilters />
       </Suspense>
 
