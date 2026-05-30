@@ -1,70 +1,79 @@
-'use client'
-
 import Link from 'next/link'
-import { useSession, signOut } from 'next-auth/react'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { auth } from '@/lib/auth'
+import { ThemeToggle } from './theme-toggle'
 
-export function Nav() {
-  const { data: session } = useSession()
+export async function Nav() {
+  const session = await auth()
 
   return (
-    <header className="border-b bg-white sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-xl text-[#600df9]">
-          HRSkillsHub
+    <header className="border-t-[3px] border-brand sticky top-0 z-50 bg-[var(--nav-bg)] border-b border-border">
+      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="font-heading text-lg font-black tracking-tight hover:text-brand transition-colors"
+        >
+          HR<span className="text-brand">Skills</span>Hub
         </Link>
 
-        <nav className="flex items-center gap-6">
-          <Link href="/skills" className="text-sm text-gray-600 hover:text-gray-900">
-            浏览 Skills
+        {/* 主导航 */}
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+          <Link href="/skills" className="hover:text-brand transition-colors">
+            Skills
+          </Link>
+          <Link href="/authors" className="hover:text-brand transition-colors">
+            作者
+          </Link>
+          <Link href="/docs" className="hover:text-brand transition-colors text-muted-foreground">
+            文档
+          </Link>
+        </nav>
+
+        {/* 右侧操作区 */}
+        <div className="flex items-center gap-3">
+          {/* 语言切换（占位，Task 17 实现） */}
+          <span className="hidden md:block text-xs text-muted-foreground cursor-not-allowed">
+            中 / EN
+          </span>
+
+          {/* 明暗模式 */}
+          <ThemeToggle />
+
+          {/* 提交按钮 */}
+          <Link
+            href="/submit"
+            className="hidden md:block text-sm px-3 py-1.5 border border-foreground hover:bg-brand hover:text-white hover:border-brand transition-colors font-medium"
+          >
+            提交 Skill
           </Link>
 
+          {/* 用户状态 */}
           {session ? (
-            <>
-              <Link href="/submit">
-                <Button size="sm">分享 Skill</Button>
-              </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="rounded-full outline-none">
-                  <Avatar className="h-8 w-8 cursor-pointer">
-                    <AvatarFallback>
-                      {session.user?.name?.[0] ?? 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Link href="/profile" className="w-full">个人中心</Link>
-                  </DropdownMenuItem>
-                  {(session.user as any)?.role === 'ADMIN' && (
-                    <DropdownMenuItem>
-                      <Link href="/admin" className="w-full">管理后台</Link>
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={() => signOut()}>
-                    退出登录
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
             <div className="flex items-center gap-2">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">登录</Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm">注册</Button>
+              {session.user?.role === 'ADMIN' && (
+                <Link
+                  href="/admin"
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  管理
+                </Link>
+              )}
+              <Link
+                href="/profile"
+                className="text-sm hover:text-brand transition-colors"
+              >
+                {session.user?.name ?? '我的'}
               </Link>
             </div>
+          ) : (
+            <Link
+              href="/login"
+              className="text-sm hover:text-brand transition-colors"
+            >
+              登录
+            </Link>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   )

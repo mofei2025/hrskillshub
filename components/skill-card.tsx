@@ -1,71 +1,62 @@
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Download, Heart } from 'lucide-react'
+import { Download, User } from 'lucide-react'
+import { GradeBadge } from './grade-badge'
+import type { Skill, Category, User as PrismaUser } from '@prisma/client'
 
-const AI_LABELS: Record<string, string> = {
-  claude: 'Claude',
-  chatgpt: 'ChatGPT',
-  deepseek: 'DeepSeek',
-  all: '通用',
-}
-
-const TYPE_LABELS: Record<string, string> = {
-  PROMPT: '提示词',
-  CLAUDE_SKILL: 'Claude Skill',
+type SkillWithRelations = Skill & {
+  category: Category
+  author: Pick<PrismaUser, 'nickname'>
 }
 
 interface SkillCardProps {
-  skill: {
-    id: string
-    title: string
-    description: string
-    type: string
-    compatibleAi: string[]
-    downloadCount: number
-    favoriteCount: number
-    author: { nickname: string }
-    category: { name: string }
-  }
+  skill: SkillWithRelations
 }
 
 export function SkillCard({ skill }: SkillCardProps) {
   return (
-    <Link href={`/skills/${skill.id}`}>
-      <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
-        <CardHeader className="pb-2">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-gray-900 line-clamp-2">{skill.title}</h3>
-            <Badge variant="outline" className="shrink-0 text-xs">
-              {TYPE_LABELS[skill.type] ?? skill.type}
-            </Badge>
+    <Link href={`/skills/${skill.id}`} className="group block overflow-hidden">
+      <article className="relative border border-[var(--card-border)] bg-card h-full hover:border-foreground transition-colors duration-150">
+        {/* Grade 徽章 - 右上角 */}
+        <div className="absolute top-3 right-3 z-10">
+          <GradeBadge grade={skill.securityGrade} size="sm" />
+        </div>
+
+        <div className="p-4 pb-10 h-full flex flex-col">
+          {/* 分类标签 */}
+          <div className="mb-2">
+            <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+              {skill.category.name}
+            </span>
           </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500 line-clamp-2 mb-3">{skill.description}</p>
-          <div className="flex flex-wrap gap-1 mb-3">
-            <Badge variant="secondary" className="text-xs">{skill.category.name}</Badge>
-            {skill.compatibleAi.map(ai => (
-              <Badge key={ai} variant="outline" className="text-xs">
-                {AI_LABELS[ai] ?? ai}
-              </Badge>
-            ))}
+
+          {/* 标题 */}
+          <h3 className="font-heading text-base font-black leading-tight mb-2 group-hover:text-brand transition-colors pr-20">
+            {skill.title}
+          </h3>
+
+          {/* 描述 */}
+          <p className="text-sm text-muted-foreground line-clamp-2 flex-1 mb-4">
+            {skill.description}
+          </p>
+
+          {/* 底部：作者 + 统计 */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <User size={12} />
+              {skill.author.nickname}
+            </span>
+            <span className="flex items-center gap-1">
+              <Download size={12} />
+              {skill.installCount.toLocaleString()}
+            </span>
           </div>
-          <div className="flex items-center justify-between text-xs text-gray-400">
-            <span>{skill.author.nickname}</span>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1">
-                <Download className="h-3 w-3" />
-                {skill.downloadCount}
-              </span>
-              <span className="flex items-center gap-1">
-                <Heart className="h-3 w-3" />
-                {skill.favoriteCount}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Hover 安装按钮 */}
+        <div className="absolute bottom-0 left-0 right-0 bg-brand text-white text-xs font-medium text-center py-1.5 translate-y-full group-hover:translate-y-0 transition-transform duration-150">
+          安装 →
+        </div>
+      </article>
     </Link>
   )
 }

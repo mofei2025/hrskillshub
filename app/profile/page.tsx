@@ -25,7 +25,7 @@ export default async function ProfilePage() {
       orderBy: { createdAt: 'desc' },
       include: {
         author: { select: { nickname: true } },
-        category: { select: { name: true, slug: true } },
+        category: true,
       },
     }),
     db.favorite.findMany({
@@ -35,7 +35,7 @@ export default async function ProfilePage() {
         skill: {
           include: {
             author: { select: { nickname: true } },
-            category: { select: { name: true, slug: true } },
+            category: true,
           },
         },
       },

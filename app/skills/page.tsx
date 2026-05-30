@@ -28,7 +28,7 @@ async function getSkills(searchParams: Record<string, string>) {
     orderBy,
     include: {
       author: { select: { nickname: true } },
-      category: { select: { name: true, slug: true } },
+      category: true,
     },
   })
 }

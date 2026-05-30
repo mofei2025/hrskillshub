@@ -12,7 +12,7 @@ async function getHomeData() {
       take: 6,
       include: {
         author: { select: { nickname: true } },
-        category: { select: { name: true, slug: true } },
+        category: true,
       },
     }),
     db.category.findMany({ orderBy: { name: 'asc' } }),
