@@ -63,7 +63,7 @@ export default async function AdminSkillsPage({
             </tr>
           </thead>
           <tbody className="divide-y">
-            {skills.map((skill) => {
+            {skills.map((skill: (typeof skills)[0]) => {
               const statusCfg = STATUS_CONFIG[skill.status]
               return (
                 <tr key={skill.id} className="hover:bg-gray-50">
