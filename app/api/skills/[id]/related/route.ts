@@ -9,19 +9,21 @@ export async function GET(
     const { id } = await params
     const skill = await db.skill.findUnique({
       where: { id },
-      select: { categoryId: true },
+      select: { categories: { select: { id: true } } },
     })
 
     if (!skill) return NextResponse.json({ error: '不存在' }, { status: 404 })
 
+    const categoryIds = skill.categories.map((c) => c.id)
+
     const related = await db.skill.findMany({
       where: {
-        categoryId: skill.categoryId,
+        categories: categoryIds.length ? { some: { id: { in: categoryIds } } } : undefined,
         status: 'PUBLISHED',
         id: { not: id },
       },
       include: {
-        category: true,
+        categories: { select: { name: true, slug: true }, orderBy: { order: 'asc' } },
         author: { select: { nickname: true } },
       },
       orderBy: { installCount: 'desc' },

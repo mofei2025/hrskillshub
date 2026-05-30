@@ -24,9 +24,8 @@ async function getAllSkills(page: number) {
         securityGrade: true,
         fileUrl: true,
         createdAt: true,
-        categoryId: true,
         author: { select: { nickname: true } },
-        category: { select: { name: true } },
+        categories: { select: { id: true, name: true }, orderBy: { order: 'asc' } },
       },
     }),
     db.skill.count(),
@@ -69,7 +68,7 @@ export default async function AdminSkillsPage({
               return (
                 <tr key={skill.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-900 max-w-xs truncate">{skill.title}</td>
-                  <td className="px-4 py-3 text-gray-500">{skill.category.name}</td>
+                  <td className="px-4 py-3 text-gray-500">{skill.categories.map(c => c.name).join('、')}</td>
                   <td className="px-4 py-3 text-gray-500">{skill.author.nickname}</td>
                   <td className="px-4 py-3">
                     <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>
@@ -79,7 +78,7 @@ export default async function AdminSkillsPage({
                   </td>
                   <td className="px-4 py-3">
                     <SkillRowActions
-                      skill={skill}
+                      skill={{ ...skill, categoryIds: skill.categories.map(c => c.id) }}
                       categories={categories}
                     />
                   </td>

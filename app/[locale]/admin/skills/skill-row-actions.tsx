@@ -14,9 +14,8 @@ interface Skill {
   description: string
   status: string
   securityGrade: string
-  content: string | null
   fileUrl: string | null
-  categoryId: string
+  categoryIds: string[]
 }
 
 interface SkillRowActionsProps {
@@ -32,9 +31,15 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
   // 编辑表单状态
   const [editTitle, setEditTitle] = useState(skill.title)
   const [editDesc, setEditDesc] = useState(skill.description)
-  const [editCategoryId, setEditCategoryId] = useState(skill.categoryId)
+  const [editCategoryIds, setEditCategoryIds] = useState<string[]>(skill.categoryIds)
   const [editFileUrl, setEditFileUrl] = useState(skill.fileUrl ?? '')
   const [editError, setEditError] = useState('')
+
+  function toggleEditCategory(id: string) {
+    setEditCategoryIds(prev =>
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    )
+  }
 
   async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const newStatus = e.target.value
@@ -83,6 +88,7 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
     e.preventDefault()
     if (!editTitle.trim()) { setEditError('标题不能为空'); return }
     if (!editDesc.trim()) { setEditError('描述不能为空'); return }
+    if (editCategoryIds.length === 0) { setEditError('请至少选择一个分类'); return }
     setLoading(true)
     setEditError('')
     try {
@@ -92,7 +98,7 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
         body: JSON.stringify({
           title: editTitle,
           description: editDesc,
-          categoryId: editCategoryId,
+          categoryIds: editCategoryIds,
           fileUrl: editFileUrl || null,
         }),
       })
@@ -119,9 +125,9 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
         </select>
         <select value={skill.securityGrade} onChange={handleGradeChange} disabled={loading} className={selectCls}>
           <option value="PENDING">待评级</option>
-          <option value="A">Grade A</option>
-          <option value="B">Grade B</option>
-          <option value="C">Grade C</option>
+          <option value="A">S 级</option>
+          <option value="B">A 级</option>
+          <option value="C">B 级</option>
         </select>
         <button
           onClick={() => setEditOpen(true)}
@@ -176,18 +182,28 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
                 <p className="text-xs text-gray-400 mt-1">{editDesc.length}/500</p>
               </div>
 
-              {/* 分类 */}
+              {/* 分类（多选） */}
               <div>
-                <label className={labelCls}>分类 *</label>
-                <select
-                  value={editCategoryId}
-                  onChange={e => setEditCategoryId(e.target.value)}
-                  className={inputCls}
-                >
-                  {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+                <label className={labelCls}>分类 * <span className="text-gray-400 font-normal">(可多选)</span></label>
+                <div className="flex flex-wrap gap-1.5">
+                  {categories.map(c => {
+                    const checked = editCategoryIds.includes(c.id)
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => toggleEditCategory(c.id)}
+                        className={`text-xs border rounded px-2 py-1 transition-colors ${
+                          checked
+                            ? 'border-blue-500 bg-blue-50 text-blue-600'
+                            : 'border-gray-200 text-gray-600 hover:border-blue-300'
+                        }`}
+                      >
+                        {c.name}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
               {/* GitHub URL */}

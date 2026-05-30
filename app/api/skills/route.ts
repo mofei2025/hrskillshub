@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const skip = (page - 1) * limit
 
   const where: Prisma.SkillWhereInput = { status: 'PUBLISHED' }
-  if (category) where.category = { slug: category }
+  if (category) where.categories = { some: { slug: category } }
   if (ai) where.compatibleAi = { has: ai }
 
   // grade 枚举白名单校验
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     skip,
     include: {
       author: { select: { nickname: true } },
-      category: { select: { name: true, slug: true } },
+      categories: { select: { name: true, slug: true }, orderBy: { order: 'asc' } },
     },
   })
 
@@ -67,9 +67,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { title, description, content, type, compatibleAi, categoryId, fileUrl, version, changelog } = body
+    const { title, description, content, type, compatibleAi, categoryIds, fileUrl, version, changelog } = body
 
-    if (!title?.trim() || !description?.trim() || !type || !categoryId) {
+    if (!title?.trim() || !description?.trim() || !type || !categoryIds?.length) {
       return NextResponse.json({ error: '请填写必填项（名称、描述、分类、类型）' }, { status: 400 })
     }
 
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
         fileUrl: fileUrl ?? null,
         type: normalizedType as SkillType,
         compatibleAi: compatibleAi ?? [],
-        categoryId,
+        categories: { connect: (categoryIds as string[]).map((id: string) => ({ id })) },
         authorId: session.user.id,
         status,
         version: skillVersion,

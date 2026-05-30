@@ -13,7 +13,7 @@ export async function PATCH(
   }
 
   const body = await req.json()
-  const { status, title, description, categoryId, content, fileUrl } = body
+  const { status, title, description, categoryIds, content, fileUrl } = body
 
   const updateData: Record<string, unknown> = {}
 
@@ -27,7 +27,9 @@ export async function PATCH(
   }
   if (title !== undefined) updateData.title = title.trim()
   if (description !== undefined) updateData.description = description.trim()
-  if (categoryId !== undefined) updateData.categoryId = categoryId
+  if (categoryIds !== undefined) {
+    updateData.categories = { set: (categoryIds as string[]).map((id: string) => ({ id })) }
+  }
   if (content !== undefined) updateData.content = content
   if (fileUrl !== undefined) updateData.fileUrl = fileUrl || null
 

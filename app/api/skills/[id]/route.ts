@@ -9,7 +9,7 @@ export async function GET(
     where: { id: params.id, status: 'PUBLISHED' },
     include: {
       author: { select: { nickname: true, avatarUrl: true } },
-      category: { select: { name: true, slug: true } },
+      categories: { select: { name: true, slug: true }, orderBy: { order: 'asc' } },
       comments: {
         include: { user: { select: { nickname: true } } },
         orderBy: { createdAt: 'desc' },

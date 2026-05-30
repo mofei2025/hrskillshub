@@ -41,7 +41,7 @@ export default async function AuthorPage({ params }: PageProps) {
     db.skill.findMany({
       where: { authorId: user.id, status: 'PUBLISHED' },
       include: {
-        category: true,
+        categories: { orderBy: { order: 'asc' } },
         author: { select: { nickname: true } },
       },
       orderBy: { installCount: 'desc' },

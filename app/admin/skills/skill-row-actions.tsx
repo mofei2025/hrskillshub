@@ -86,9 +86,9 @@ export function SkillRowActions({ skillId, currentStatus, initialGrade = 'PENDIN
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="PENDING">待评级</SelectItem>
-          <SelectItem value="A">Grade A</SelectItem>
-          <SelectItem value="B">Grade B</SelectItem>
-          <SelectItem value="C">Grade C</SelectItem>
+          <SelectItem value="A">S 级</SelectItem>
+          <SelectItem value="B">A 级</SelectItem>
+          <SelectItem value="C">B 级</SelectItem>
         </SelectContent>
       </Select>
       <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>

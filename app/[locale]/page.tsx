@@ -21,7 +21,7 @@ async function getHomeData() {
     db.skill.findMany({
       where: { status: 'PUBLISHED' },
       include: {
-        category: true,
+        categories: { orderBy: { order: 'asc' } },
         author: { select: { nickname: true } },
       },
       orderBy: { installCount: 'desc' },
@@ -122,7 +122,7 @@ export default async function HomePage() {
                 label: '次安装',
               },
               { value: `${totalUsers.toLocaleString()}`, label: '贡献者' },
-              { value: `${gradeAPercent}%`, label: 'Grade A' },
+              { value: `${gradeAPercent}%`, label: 'S 级' },
             ].map(({ value, label }) => (
               <div key={label} className="py-6 px-8 text-center">
                 <div className="font-heading text-2xl font-black text-brand">{value}</div>

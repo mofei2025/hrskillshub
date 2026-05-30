@@ -42,7 +42,7 @@ model Category {
   slug      String   @unique
   order     Int      @default(0)
   createdAt DateTime @default(now())
-  skills    Skill[]
+  skills    Skill[]  // 隐式多对多
 }
 
 model Skill {
@@ -53,8 +53,7 @@ model Skill {
   fileUrl              String?
   type                 SkillType
   compatibleAi         String[]
-  categoryId           String
-  category             Category      @relation(fields: [categoryId], references: [id])
+  categories           Category[]    // 多对多，支持多分类
   installCount         Int           @default(0)
   favoriteCount        Int           @default(0)
   downloadCount        Int           @default(0)

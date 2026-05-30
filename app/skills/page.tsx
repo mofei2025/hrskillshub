@@ -8,7 +8,7 @@ async function getSkills(searchParams: Record<string, string>) {
   const { category, type, ai, sort, q, grade } = searchParams
 
   const where: Prisma.SkillWhereInput = { status: 'PUBLISHED' }
-  if (category) where.category = { slug: category }
+  if (category) where.categories = { some: { slug: category } }
   if (ai) where.compatibleAi = { has: ai }
 
   // grade 枚举白名单校验
@@ -41,7 +41,7 @@ async function getSkills(searchParams: Record<string, string>) {
     orderBy,
     include: {
       author: { select: { nickname: true } },
-      category: true,
+      categories: { orderBy: { order: 'asc' } },
     },
   })
 }
@@ -51,14 +51,17 @@ export default async function SkillsPage({
 }: {
   searchParams: Record<string, string>
 }) {
-  const skills = await getSkills(searchParams)
+  const [skills, categories] = await Promise.all([
+    getSkills(searchParams),
+    db.category.findMany({ orderBy: [{ order: 'asc' }, { name: 'asc' }] }),
+  ])
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">浏览 Skills</h1>
 
       <Suspense fallback={<div className="h-20 bg-muted animate-pulse" />}>
-        <SkillFilters />
+        <SkillFilters categories={categories} />
       </Suspense>
 
       <div className="mt-6">

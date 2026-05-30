@@ -28,9 +28,9 @@ const threatCategories = [
 ]
 
 const gradeDisplay = {
-  A: { label: 'Grade A', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', icon: CheckCircle },
-  B: { label: 'Grade B', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20', icon: AlertTriangle },
-  C: { label: 'Grade C', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/20', icon: XCircle },
+  A: { label: 'S 级', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', icon: CheckCircle },
+  B: { label: 'A 级', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20', icon: AlertTriangle },
+  C: { label: 'B 级', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/20', icon: XCircle },
   PENDING: { label: '待评级', color: 'text-muted-foreground', bg: 'bg-[var(--hero-bg)]', icon: Shield },
 }
 

@@ -11,16 +11,43 @@ export async function PATCH(
     return NextResponse.json({ error: '无权限' }, { status: 403 })
   }
 
-  const { role } = await req.json()
-  const validRoles = ['USER', 'CONTRIBUTOR', 'ADMIN']
-  if (!validRoles.includes(role)) {
-    return NextResponse.json({ error: '无效的角色值' }, { status: 400 })
+  const body = await req.json()
+  const { role, nickname, avatarUrl, bio, reset } = body
+
+  // 重置 profile
+  if (reset) {
+    const user = await db.user.update({
+      where: { id: params.id },
+      data: { nickname: null, avatarUrl: null, bio: null },
+      select: { id: true, email: true, nickname: true, avatarUrl: true, bio: true, role: true },
+    })
+    return NextResponse.json({ user })
   }
+
+  // 修改角色
+  if (role !== undefined) {
+    const validRoles = ['USER', 'CONTRIBUTOR', 'ADMIN']
+    if (!validRoles.includes(role)) {
+      return NextResponse.json({ error: '无效的角色值' }, { status: 400 })
+    }
+    const user = await db.user.update({
+      where: { id: params.id },
+      data: { role },
+      select: { id: true, email: true, nickname: true, role: true },
+    })
+    return NextResponse.json({ user })
+  }
+
+  // 修改 profile
+  const data: { nickname?: string | null; avatarUrl?: string | null; bio?: string | null } = {}
+  if (nickname !== undefined) data.nickname = nickname || null
+  if (avatarUrl !== undefined) data.avatarUrl = avatarUrl || null
+  if (bio !== undefined) data.bio = bio || null
 
   const user = await db.user.update({
     where: { id: params.id },
-    data: { role },
-    select: { id: true, email: true, nickname: true, role: true },
+    data,
+    select: { id: true, email: true, nickname: true, avatarUrl: true, bio: true, role: true },
   })
 
   return NextResponse.json({ user })

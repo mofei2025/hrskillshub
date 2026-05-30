@@ -76,9 +76,17 @@ export default async function AuthorsPage() {
               <div className="text-2xl font-heading font-black text-brand mb-3">
                 #{author.rank}
               </div>
-              <div className="w-14 h-14 mx-auto bg-foreground text-background flex items-center justify-center text-xl font-heading font-black border border-border mb-3">
-                {displayName(author).charAt(0).toUpperCase()}
-              </div>
+              {author.avatarUrl ? (
+                <img
+                  src={author.avatarUrl}
+                  alt={displayName(author)}
+                  className="w-14 h-14 mx-auto border border-border object-cover mb-3"
+                />
+              ) : (
+                <div className="w-14 h-14 mx-auto bg-foreground text-background flex items-center justify-center text-xl font-heading font-black border border-border mb-3">
+                  {displayName(author).charAt(0).toUpperCase()}
+                </div>
+              )}
               <div className="font-heading font-black text-sm truncate group-hover:text-brand transition-colors">
                 {displayName(author)}
               </div>
@@ -122,9 +130,17 @@ export default async function AuthorsPage() {
             {/* 作者名 — 可点击 */}
             <div className="col-span-5 flex items-center gap-3">
               <Link href={`/authors/${slug(author)}`} className="flex items-center gap-3 group min-w-0">
-                <div className="w-9 h-9 bg-foreground text-background flex items-center justify-center text-sm font-heading font-black border border-border flex-shrink-0">
-                  {displayName(author).charAt(0).toUpperCase()}
-                </div>
+                {author.avatarUrl ? (
+                  <img
+                    src={author.avatarUrl}
+                    alt={displayName(author)}
+                    className="w-9 h-9 border border-border object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-9 h-9 bg-foreground text-background flex items-center justify-center text-sm font-heading font-black border border-border flex-shrink-0">
+                    {displayName(author).charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate group-hover:text-brand transition-colors">
                     {displayName(author)}

@@ -22,7 +22,7 @@ async function getAllSkills(page: number) {
       orderBy: { createdAt: 'desc' },
       include: {
         author: { select: { nickname: true } },
-        category: { select: { name: true } },
+        categories: { select: { name: true }, orderBy: { order: 'asc' } },
       },
     }),
     db.skill.count(),
@@ -66,7 +66,7 @@ export default async function AdminSkillsPage({
                 <tr key={skill.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-900 max-w-xs truncate">{skill.title}</td>
                   <td className="px-4 py-3 text-gray-500">{TYPE_LABELS[skill.type] ?? skill.type}</td>
-                  <td className="px-4 py-3 text-gray-500">{skill.category.name}</td>
+                  <td className="px-4 py-3 text-gray-500">{skill.categories.map((c: {name: string}) => c.name).join('、')}</td>
                   <td className="px-4 py-3 text-gray-500">{skill.author.nickname}</td>
                   <td className="px-4 py-3">
                     <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>

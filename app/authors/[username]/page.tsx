@@ -39,7 +39,7 @@ export default async function AuthorPage({ params }: PageProps) {
     db.skill.findMany({
       where: { authorId: user.id, status: 'PUBLISHED' },
       include: {
-        category: true,
+        categories: { orderBy: { order: 'asc' } },
         author: { select: { nickname: true } },
       },
       orderBy: { installCount: 'desc' },
@@ -81,9 +81,17 @@ export default async function AuthorPage({ params }: PageProps) {
       {/* ===== 英雄区 ===== */}
       <section className="border border-border p-8 mb-8 bg-[var(--hero-bg)]">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          <div className="w-20 h-20 bg-foreground text-background flex items-center justify-center text-3xl font-heading font-black border border-border flex-shrink-0">
-            {(user.nickname ?? user.name ?? user.email).charAt(0).toUpperCase()}
-          </div>
+          {user.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={user.nickname ?? user.name ?? '作者'}
+              className="w-20 h-20 border border-border object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-20 h-20 bg-foreground text-background flex items-center justify-center text-3xl font-heading font-black border border-border flex-shrink-0">
+              {(user.nickname ?? user.name ?? user.email ?? '?').charAt(0).toUpperCase()}
+            </div>
+          )}
           <div className="flex-1">
             <h1 className="font-heading text-2xl font-black tracking-tight mb-1">
               {user.nickname ?? user.name ?? user.email}

@@ -12,7 +12,7 @@ async function getSkills(searchParams: Record<string, string>) {
   const { category, type, sort, q, grade } = searchParams
 
   const where: Prisma.SkillWhereInput = { status: 'PUBLISHED' }
-  if (category) where.category = { slug: category }
+  if (category) where.categories = { some: { slug: category } }
 
   const VALID_GRADES: SecurityGrade[] = ['A', 'B', 'C', 'PENDING']
   if (grade && grade !== 'ALL' && VALID_GRADES.includes(grade as SecurityGrade)) {
@@ -42,7 +42,7 @@ async function getSkills(searchParams: Record<string, string>) {
     orderBy,
     include: {
       author: { select: { nickname: true } },
-      category: true,
+      categories: { orderBy: { order: 'asc' } },
     },
   })
 }

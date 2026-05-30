@@ -4,7 +4,7 @@ import { GradeBadge } from './grade-badge'
 import type { Skill, Category, User as PrismaUser } from '@prisma/client'
 
 type SkillWithRelations = Skill & {
-  category: Category
+  categories: Pick<Category, 'name' | 'slug'>[]
   author: Pick<PrismaUser, 'nickname'>
 }
 
@@ -23,10 +23,12 @@ export function SkillCard({ skill }: SkillCardProps) {
 
         <div className="p-4 pb-10 h-full flex flex-col">
           {/* 分类标签 */}
-          <div className="mb-2">
-            <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-              {skill.category.name}
-            </span>
+          <div className="mb-2 flex flex-wrap gap-1">
+            {skill.categories.map((c) => (
+              <span key={c.slug} className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+                {c.name}
+              </span>
+            ))}
           </div>
 
           {/* 标题 */}

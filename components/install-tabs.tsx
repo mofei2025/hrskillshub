@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Copy, Check, Github, FolderOpen } from 'lucide-react'
+import { Copy, Check, ExternalLink, FolderOpen } from 'lucide-react'
 
 interface InstallTabsProps {
   skillId: string
@@ -125,7 +125,7 @@ export function InstallTabs({ skillId, slug, fileUrl }: InstallTabsProps) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-mono border border-border px-3 py-2 hover:border-brand hover:text-brand transition-colors"
               >
-                <Github size={12} />
+                <ExternalLink size={12} />
                 在 GitHub 上查看 / 下载文件
               </a>
             </div>
@@ -168,7 +168,7 @@ export function InstallTabs({ skillId, slug, fileUrl }: InstallTabsProps) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-mono border border-border px-3 py-1.5 hover:border-brand hover:text-brand transition-colors"
           >
-            <Github size={12} />
+            <ExternalLink size={12} />
             GitHub 仓库 →
           </a>
         </div>

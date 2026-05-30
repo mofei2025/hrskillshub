@@ -7,7 +7,7 @@ async function getPendingSkills() {
     orderBy: { createdAt: 'asc' },
     include: {
       author: { select: { nickname: true, email: true } },
-      category: { select: { name: true } },
+      categories: { select: { name: true }, orderBy: { order: 'asc' } },
     },
   })
 }

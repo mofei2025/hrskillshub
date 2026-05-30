@@ -10,6 +10,7 @@ import { RelatedSkills } from '@/components/related-skills'
 import { SecurityPanel } from '@/components/security-panel'
 import { FavoriteButton } from '@/components/favorite-button'
 import { CommentSection } from '@/components/comment-section'
+import { FollowButton } from '@/components/follow-button'
 import { Download, Star, User, ChevronRight } from 'lucide-react'
 
 interface PageProps {
@@ -23,15 +24,24 @@ export default async function SkillDetailPage({ params }: PageProps) {
   const skill = await db.skill.findUnique({
     where: { id, status: 'PUBLISHED' },
     include: {
-      category: true,
-      author: { select: { id: true, nickname: true, name: true, email: true, avatarUrl: true } },
+      categories: { orderBy: { order: 'asc' } },
+      author: {
+        select: {
+          id: true,
+          nickname: true,
+          name: true,
+          email: true,
+          avatarUrl: true,
+          _count: { select: { followedBy: true } },
+        },
+      },
       _count: { select: { comments: true, favorites: true } },
     },
   })
 
   if (!skill) notFound()
 
-  const [avgRatingResult, favRecord] = await Promise.all([
+  const [avgRatingResult, favRecord, authorFollowRecord] = await Promise.all([
     db.comment.aggregate({
       where: { skillId: id },
       _avg: { rating: true },
@@ -42,22 +52,35 @@ export default async function SkillDetailPage({ params }: PageProps) {
           where: { userId_skillId: { userId: session.user.id, skillId: id } },
         })
       : Promise.resolve(null),
+    session?.user?.id
+      ? db.follow.findUnique({
+          where: {
+            followerId_followingId: {
+              followerId: session.user.id,
+              followingId: skill.author.id,
+            },
+          },
+        })
+      : Promise.resolve(null),
   ])
   const userFavorited = !!favRecord
+  const isAuthorFollowing = !!authorFollowRecord
 
   const avgRating = avgRatingResult._avg.rating?.toFixed(1) ?? null
 
   // 从 GitHub URL 或 id 推导 skill 目录名
+  const fileUrl = skill.fileUrl
   function deriveSkillName(): string {
-    if (!skill.fileUrl) return id.slice(0, 12)
+    if (!fileUrl) return id.slice(0, 12)
     try {
-      const parts = new URL(skill.fileUrl).pathname.split('/').filter(Boolean)
+      const parts = new URL(fileUrl).pathname.split('/').filter(Boolean)
       return parts[parts.length - 1] ?? id.slice(0, 12)
     } catch {
       return id.slice(0, 12)
     }
   }
   const skillName = deriveSkillName()
+  const categoryIds = skill.categories.map((c) => c.id)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -75,12 +98,15 @@ export default async function SkillDetailPage({ params }: PageProps) {
         <div className="lg:col-span-2 space-y-6">
           {/* 徽章行 */}
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/skills?category=${skill.category.slug}`}
-              className="text-xs font-mono uppercase tracking-wider border border-border px-2 py-1 hover:border-brand hover:text-brand transition-colors"
-            >
-              {skill.category.name}
-            </Link>
+            {skill.categories.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/skills?category=${cat.slug}`}
+                className="text-xs font-mono uppercase tracking-wider border border-border px-2 py-1 hover:border-brand hover:text-brand transition-colors"
+              >
+                {cat.name}
+              </Link>
+            ))}
             <span className="text-xs font-mono border border-border px-2 py-1 text-muted-foreground">
               Skill
             </span>
@@ -150,14 +176,22 @@ export default async function SkillDetailPage({ params }: PageProps) {
                 作者
               </h3>
             </div>
-            <div className="p-4">
+            <div className="p-4 space-y-3">
               <Link
                 href={`/authors/${skill.author.nickname ?? skill.author.id}`}
                 className="flex items-center gap-3 hover:text-brand transition-colors group"
               >
-                <div className="w-10 h-10 bg-[var(--hero-bg)] border border-border flex items-center justify-center text-sm font-heading font-black">
-                  {(skill.author.nickname ?? skill.author.email).charAt(0).toUpperCase()}
-                </div>
+                {skill.author.avatarUrl ? (
+                  <img
+                    src={skill.author.avatarUrl}
+                    alt={skill.author.nickname ?? '作者'}
+                    className="w-10 h-10 border border-border object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-[var(--hero-bg)] border border-border flex items-center justify-center text-sm font-heading font-black flex-shrink-0">
+                    {(skill.author.nickname ?? skill.author.email ?? '?').charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <div className="font-medium group-hover:text-brand transition-colors">
                     {skill.author.nickname ?? skill.author.email}
@@ -165,6 +199,14 @@ export default async function SkillDetailPage({ params }: PageProps) {
                   <div className="text-xs text-muted-foreground">查看主页 →</div>
                 </div>
               </Link>
+              {session?.user?.id !== skill.author.id && (
+                <FollowButton
+                  targetUserId={skill.author.id}
+                  initialFollowing={isAuthorFollowing}
+                  initialFollowerCount={skill.author._count.followedBy}
+                  isLoggedIn={!!session?.user?.id}
+                />
+              )}
             </div>
           </div>
 
@@ -176,7 +218,7 @@ export default async function SkillDetailPage({ params }: PageProps) {
           />
 
           {/* 相关推荐 */}
-          <RelatedSkills skillId={id} categoryId={skill.categoryId} />
+          <RelatedSkills skillId={id} categoryIds={categoryIds} />
         </div>
       </div>
     </div>

@@ -5,18 +5,18 @@ import { Download } from 'lucide-react'
 
 interface RelatedSkillsProps {
   skillId: string
-  categoryId: string
+  categoryIds: string[]
 }
 
-export async function RelatedSkills({ skillId, categoryId }: RelatedSkillsProps) {
+export async function RelatedSkills({ skillId, categoryIds }: RelatedSkillsProps) {
   const related = await db.skill.findMany({
     where: {
-      categoryId,
+      categories: categoryIds.length ? { some: { id: { in: categoryIds } } } : undefined,
       status: 'PUBLISHED',
       id: { not: skillId },
     },
     include: {
-      category: true,
+      categories: { select: { name: true, slug: true }, orderBy: { order: 'asc' } },
       author: { select: { nickname: true } },
     },
     orderBy: { installCount: 'desc' },

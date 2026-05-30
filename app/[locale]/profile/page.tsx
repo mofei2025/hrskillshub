@@ -33,7 +33,7 @@ export default async function ProfilePage() {
       orderBy: { createdAt: 'desc' },
       include: {
         author: { select: { nickname: true } },
-        category: true,
+        categories: { orderBy: { order: 'asc' } },
       },
     }),
     db.favorite.findMany({
@@ -43,7 +43,7 @@ export default async function ProfilePage() {
         skill: {
           include: {
             author: { select: { nickname: true } },
-            category: true,
+            categories: { orderBy: { order: 'asc' } },
           },
         },
       },

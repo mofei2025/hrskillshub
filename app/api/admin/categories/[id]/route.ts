@@ -12,7 +12,7 @@ export async function DELETE(
     return NextResponse.json({ error: '无权限' }, { status: 403 })
   }
 
-  const skillCount = await db.skill.count({ where: { categoryId: params.id } })
+  const skillCount = await db.skill.count({ where: { categories: { some: { id: params.id } } } })
   if (skillCount > 0) {
     return NextResponse.json(
       { error: `该分类下还有 ${skillCount} 个 Skill，请先移除后再删除` },

@@ -18,7 +18,7 @@ export async function GET(
     const skills = await db.skill.findMany({
       where: { authorId: user.id, status: 'PUBLISHED' },
       include: {
-        category: true,
+        categories: { orderBy: { order: 'asc' } },
         author: { select: { nickname: true } },
       },
       orderBy: { installCount: 'desc' },

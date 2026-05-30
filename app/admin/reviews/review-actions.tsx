@@ -27,7 +27,7 @@ interface Skill {
   type: string
   createdAt: Date
   author: { nickname: string | null; email: string }
-  category: { name: string }
+  categories: { name: string }[]
 }
 
 export function ReviewActions({ skill }: { skill: Skill }) {
@@ -67,7 +67,7 @@ export function ReviewActions({ skill }: { skill: Skill }) {
           <p className="text-sm text-gray-500 line-clamp-2 mb-1">{skill.description}</p>
           <div className="flex items-center gap-3 text-xs text-gray-400">
             <span>作者：{skill.author.nickname}（{skill.author.email}）</span>
-            <span>分类：{skill.category.name}</span>
+            <span>分类：{skill.categories.map((c: {name: string}) => c.name).join('、')}</span>
             <span>提交：{new Date(skill.createdAt).toLocaleDateString('zh-CN')}</span>
           </div>
         </div>
