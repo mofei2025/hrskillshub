@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
 import { randomUUID } from 'crypto'
+import { createOSSClient } from '@/lib/oss'
 
 const MAX_SIZE = 2 * 1024 * 1024 // 2MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -29,14 +28,14 @@ export async function POST(req: NextRequest) {
     }
 
     const ext = file.type.split('/')[1].replace('jpeg', 'jpg')
-    const filename = `${session.user.id}-${randomUUID()}.${ext}`
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'avatars')
-    const filepath = join(uploadDir, filename)
+    const filename = `avatars/${session.user.id}-${randomUUID()}.${ext}`
 
     const bytes = await file.arrayBuffer()
-    await writeFile(filepath, Buffer.from(bytes))
+    const buffer = Buffer.from(bytes)
 
-    const avatarUrl = `/uploads/avatars/${filename}`
+    const client = createOSSClient()
+    const result = await client.put(filename, buffer)
+    const avatarUrl = result.url
 
     await db.user.update({
       where: { id: session.user.id },
