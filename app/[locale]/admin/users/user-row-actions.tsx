@@ -15,9 +15,11 @@ export function UserRowActions({ user }: { user: User }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [email, setEmail] = useState(user.email)
   const [nickname, setNickname] = useState(user.nickname ?? '')
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl ?? '')
   const [bio, setBio] = useState(user.bio ?? '')
+  const [newPassword, setNewPassword] = useState('')
   const [error, setError] = useState('')
 
   const inputCls = 'w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400'
@@ -28,10 +30,12 @@ export function UserRowActions({ user }: { user: User }) {
     setLoading(true)
     setError('')
     try {
+      const body: Record<string, string> = { email, nickname, avatarUrl, bio }
+      if (newPassword) body.password = newPassword
       const res = await fetch(`/api/admin/users/${user.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname, avatarUrl, bio }),
+        body: JSON.stringify(body),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? '保存失败'); return }
@@ -86,8 +90,27 @@ export function UserRowActions({ user }: { user: User }) {
 
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
-                <label className={labelCls}>邮箱（只读）</label>
-                <input type="text" value={user.email} readOnly className={`${inputCls} bg-gray-50 text-gray-400`} />
+                <label className={labelCls}>邮箱</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  className={inputCls}
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>新密码（留空则不修改）</label>
+                <input
+                  type="text"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  placeholder="至少 8 位，留空不修改"
+                  minLength={newPassword ? 8 : undefined}
+                  className={`${inputCls} font-mono`}
+                />
+                <p className="text-xs text-gray-400 mt-1">密码经 bcrypt 加密存储，无法查看原密码。填写后将覆盖旧密码。</p>
               </div>
 
               <div>
