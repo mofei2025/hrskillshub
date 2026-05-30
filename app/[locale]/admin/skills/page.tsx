@@ -68,7 +68,7 @@ export default async function AdminSkillsPage({
               return (
                 <tr key={skill.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-900 max-w-xs truncate">{skill.title}</td>
-                  <td className="px-4 py-3 text-gray-500">{skill.categories.map(c => c.name).join('、')}</td>
+                  <td className="px-4 py-3 text-gray-500">{skill.categories.map((c: { name: string }) => c.name).join('、')}</td>
                   <td className="px-4 py-3 text-gray-500">{skill.author.nickname}</td>
                   <td className="px-4 py-3">
                     <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>
@@ -78,7 +78,7 @@ export default async function AdminSkillsPage({
                   </td>
                   <td className="px-4 py-3">
                     <SkillRowActions
-                      skill={{ ...skill, categoryIds: skill.categories.map(c => c.id) }}
+                      skill={{ ...skill, categoryIds: skill.categories.map((c: { id: string }) => c.id) }}
                       categories={categories}
                     />
                   </td>
