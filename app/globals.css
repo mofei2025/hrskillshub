@@ -8,87 +8,197 @@
   .text-balance {
     text-wrap: balance;
   }
+  /* Swiss Modern 品牌色工具类 */
+  .text-brand { color: #ff3300; }
+  .bg-brand { background-color: #ff3300; }
+  .border-brand { border-color: #ff3300; }
+  /* 字体工具类 */
+  .font-heading { font-family: var(--font-heading); }
+  .font-mono-code { font-family: var(--font-mono); }
 }
 
 @layer base {
-  .theme {
-    --font-heading: var(--font-sans);
-    --font-sans: var(--font-sans);
-  }
+  /* ===== 亮色模式（默认）===== */
   :root {
-    --background: #fdfdfd;
-    --foreground: #161317;
-    --card: #fdfdfd;
-    --card-foreground: #161317;
-    --popover: #fdfdfd;
-    --popover-foreground: #161317;
-    --primary: #600df9;
-    --primary-foreground: #fdfdfd;
-    --secondary: #ff6a3c;
-    --secondary-foreground: #fdfdfd;
-    --muted: #dcd6d6;
-    --muted-foreground: #6b6470;
-    --accent: #f5b84b;
-    --accent-foreground: #161317;
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: #dcd6d6;
-    --input: #dcd6d6;
-    --ring: #600df9;
-    --chart-1: #600df9;
-    --chart-2: #ff6a3c;
-    --chart-3: #f5b84b;
-    --chart-4: #161317;
-    --chart-5: #dcd6d6;
-    --radius: 0.625rem;
-    --sidebar: #f5f4f4;
-    --sidebar-foreground: #161317;
-    --sidebar-primary: #600df9;
-    --sidebar-primary-foreground: #fdfdfd;
-    --sidebar-accent: #efe9e9;
-    --sidebar-accent-foreground: #161317;
-    --sidebar-border: #dcd6d6;
-    --sidebar-ring: #600df9;
+    /* 品牌色（两种模式完全一致） */
+    --brand: #ff3300;
+    --brand-foreground: #ffffff;
+
+    /* 页面基础色 */
+    --background: #ffffff;
+    --foreground: #000000;
+
+    /* 英雄区背景 */
+    --hero-bg: #f5f5f5;
+
+    /* 导航背景 */
+    --nav-bg: #ffffff;
+
+    /* 卡片 */
+    --card: #ffffff;
+    --card-foreground: #000000;
+    --card-border: #e8e8e8;
+
+    /* 弹窗 */
+    --popover: #ffffff;
+    --popover-foreground: #000000;
+
+    /* 主色（黑色）*/
+    --primary: #000000;
+    --primary-foreground: #ffffff;
+
+    /* 次级（浅灰） */
+    --secondary: #f5f5f5;
+    --secondary-foreground: #000000;
+
+    /* 静音色 */
+    --muted: #f5f5f5;
+    --muted-foreground: #555555;
+
+    /* 强调色（品牌红）*/
+    --accent: #ff3300;
+    --accent-foreground: #ffffff;
+
+    /* 危险 */
+    --destructive: #dc2626;
+
+    /* 边框 */
+    --border: #e8e8e8;
+    --input: #e8e8e8;
+    --ring: #000000;
+
+    /* 搜索框 */
+    --search-border: #000000;
+    --search-border-width: 2px;
+
+    /* 分类激活色（红色） */
+    --category-active-bg: #ff3300;
+    --category-active-fg: #ffffff;
+
+    /* 次级文字 */
+    --text-secondary: #555555;
+
+    /* 无圆角 */
+    --radius: 0rem;
+
+    /* 图表色 */
+    --chart-1: #000000;
+    --chart-2: #ff3300;
+    --chart-3: #555555;
+    --chart-4: #e8e8e8;
+    --chart-5: #f5f5f5;
+
+    /* Sidebar（管理后台） */
+    --sidebar: #f5f5f5;
+    --sidebar-foreground: #000000;
+    --sidebar-primary: #000000;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #e8e8e8;
+    --sidebar-accent-foreground: #000000;
+    --sidebar-border: #e8e8e8;
+    --sidebar-ring: #000000;
   }
-  .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+
+  /* ===== 夜间模式 ===== */
+  [data-theme="dark"] {
+    /* 品牌色保持不变 */
+    --brand: #ff3300;
+    --brand-foreground: #ffffff;
+
+    /* 页面基础色 */
+    --background: #0d0d0d;
+    --foreground: #f0f0f0;
+
+    /* 英雄区背景 */
+    --hero-bg: #0a0a0a;
+
+    /* 导航背景 */
+    --nav-bg: #0a0a0a;
+
+    /* 卡片 */
+    --card: #111111;
+    --card-foreground: #f0f0f0;
+    --card-border: #1e1e1e;
+
+    /* 弹窗 */
+    --popover: #111111;
+    --popover-foreground: #f0f0f0;
+
+    /* 主色（近白）*/
+    --primary: #f0f0f0;
+    --primary-foreground: #0d0d0d;
+
+    /* 次级 */
+    --secondary: #1a1a1a;
+    --secondary-foreground: #f0f0f0;
+
+    /* 静音色 */
+    --muted: #1a1a1a;
+    --muted-foreground: #555555;
+
+    /* 强调色（品牌红）*/
+    --accent: #ff3300;
+    --accent-foreground: #ffffff;
+
+    /* 危险 */
+    --destructive: #ef4444;
+
+    /* 边框 */
+    --border: #1e1e1e;
+    --input: #1e1e1e;
+    --ring: #f0f0f0;
+
+    /* 搜索框 */
+    --search-border: #2a2a2a;
+    --search-border-width: 1px;
+
+    /* 分类激活色（红色，夜间不变）*/
+    --category-active-bg: #ff3300;
+    --category-active-fg: #ffffff;
+
+    /* 次级文字 */
+    --text-secondary: #555555;
+
+    /* 图表色 */
+    --chart-1: #f0f0f0;
+    --chart-2: #ff3300;
+    --chart-3: #555555;
+    --chart-4: #1e1e1e;
+    --chart-5: #0a0a0a;
+
+    /* Sidebar */
+    --sidebar: #111111;
+    --sidebar-foreground: #f0f0f0;
+    --sidebar-primary: #f0f0f0;
+    --sidebar-primary-foreground: #0d0d0d;
+    --sidebar-accent: #1e1e1e;
+    --sidebar-accent-foreground: #f0f0f0;
+    --sidebar-border: #1e1e1e;
+    --sidebar-ring: #f0f0f0;
   }
+
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body), system-ui, sans-serif;
   }
+
   html {
-    @apply font-sans;
+    font-family: var(--font-body), system-ui, sans-serif;
+  }
+
+  /* Swiss Modern：全局去掉圆角 */
+  *,
+  *::before,
+  *::after {
+    border-radius: 0 !important;
+  }
+
+  /* 品牌识别：顶部 3px 红线（通过 nav 实现，此处为辅助） */
+  .brand-top-line {
+    border-top: 3px solid #ff3300;
   }
 }

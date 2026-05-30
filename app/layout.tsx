@@ -1,15 +1,30 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Archivo_Black, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Nav } from '@/components/nav'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/components/session-provider'
+import { ThemeProvider } from 'next-themes'
 
-const inter = Inter({ subsets: ['latin'] })
+const archivoBlack = Archivo_Black({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-heading',
+})
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-body',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+})
 
 export const metadata: Metadata = {
-  title: 'HRSkillsHub - HR行业 AI Skills 分享平台',
-  description: '专为 HR 从业者打造的 AI 提示词和 Skills 分享社区',
+  title: 'HRSkillsHub - HR 行业 AI Skills 分享平台',
+  description: '专为 HR 从业者打造的 AI Skills 与提示词分享社区，精选经过安全审核的提示词与技能包',
 }
 
 export default function RootLayout({
@@ -18,13 +33,24 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN">
-      <body className={inter.className}>
-        <AuthProvider>
-          <Nav />
-          <main>{children}</main>
-          <Toaster />
-        </AuthProvider>
+    <html
+      lang="zh-CN"
+      suppressHydrationWarning
+      className={`${archivoBlack.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+    >
+      <body>
+        <ThemeProvider
+          attribute="data-theme"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <Nav />
+            <main>{children}</main>
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
