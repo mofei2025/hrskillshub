@@ -60,38 +60,60 @@ export async function GET(req: NextRequest) {
 
 // POST /api/skills - 创建新 Skill
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) {
-    return NextResponse.json({ error: '请先登录' }, { status: 401 })
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: '请先登录' }, { status: 401 })
+    }
+
+    const body = await req.json()
+    const { title, description, content, type, compatibleAi, categoryId, fileUrl, version, changelog } = body
+
+    if (!title?.trim() || !description?.trim() || !type || !categoryId) {
+      return NextResponse.json({ error: '请填写必填项（名称、描述、分类、类型）' }, { status: 400 })
+    }
+
+    const VALID_TYPES: SkillType[] = ['PROMPT', 'CLAUDE_SKILL']
+    const normalizedType = type.toUpperCase()
+    if (!VALID_TYPES.includes(normalizedType as SkillType)) {
+      return NextResponse.json({ error: '无效的 Skill 类型' }, { status: 400 })
+    }
+
+    const user = await db.user.findUnique({ where: { id: session.user.id } })
+    if (!user) {
+      return NextResponse.json({ error: '用户不存在' }, { status: 401 })
+    }
+    const status = user.role === 'CONTRIBUTOR' || user.role === 'ADMIN' ? 'PUBLISHED' : 'PENDING'
+
+    const skillVersion = version?.trim() || '1.0.0'
+
+    const skill = await db.skill.create({
+      data: {
+        title: title.trim(),
+        description: description.trim(),
+        content: content ?? null,
+        fileUrl: fileUrl ?? null,
+        type: normalizedType as SkillType,
+        compatibleAi: compatibleAi ?? [],
+        categoryId,
+        authorId: session.user.id,
+        status,
+        version: skillVersion,
+        publishedAt: status === 'PUBLISHED' ? new Date() : null,
+        versions: changelog?.trim()
+          ? {
+              create: {
+                version: skillVersion,
+                changelog: changelog.trim(),
+              },
+            }
+          : undefined,
+      },
+    })
+
+    return NextResponse.json({ skill, status }, { status: 201 })
+  } catch (error) {
+    console.error('[POST /api/skills]', error)
+    return NextResponse.json({ error: '服务器错误，请稍后重试' }, { status: 500 })
   }
-
-  const body = await req.json()
-  const { title, description, content, type, compatibleAi, categoryId, fileUrl, version, changelog } = body
-
-  if (!title || !description || !type || !categoryId) {
-    return NextResponse.json({ error: '请填写必填项' }, { status: 400 })
-  }
-
-  const user = await db.user.findUnique({ where: { id: session.user.id } })
-  const status = user?.role === 'CONTRIBUTOR' || user?.role === 'ADMIN'
-    ? 'PUBLISHED'
-    : 'PENDING'
-
-  const skill = await db.skill.create({
-    data: {
-      title,
-      description,
-      content,
-      fileUrl,
-      type: type.toUpperCase(),
-      compatibleAi: compatibleAi ?? [],
-      categoryId,
-      authorId: session.user.id,
-      status,
-      version: version ?? '1.0.0',
-      publishedAt: status === 'PUBLISHED' ? new Date() : null,
-    },
-  })
-
-  return NextResponse.json({ skill, status }, { status: 201 })
 }

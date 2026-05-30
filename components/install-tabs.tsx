@@ -17,7 +17,7 @@ export function InstallTabs({ skillId, slug, content, fileUrl }: InstallTabsProp
   const [copied, setCopied] = useState(false)
 
   const slugOrId = slug ?? skillId
-  const command = `/install-skill hrskillshub/${slugOrId}`
+  const command = `/install-skill hrskiilhub/${slugOrId}`
 
   async function handleCopy(text: string) {
     try {

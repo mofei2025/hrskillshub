@@ -9,8 +9,11 @@ datasource db {
 model User {
   id            String     @id @default(cuid())
   email         String     @unique
-  password      String
-  nickname      String
+  emailVerified DateTime?
+  password      String?    // OAuth 用户无密码
+  name          String?    // NextAuth OAuth 适配器字段
+  nickname      String?    // 用户昵称（显示名）
+  image         String?    // OAuth 头像（适配器字段）
   role          Role       @default(USER)
   avatarUrl     String?
   bio           String?

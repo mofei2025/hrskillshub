@@ -26,7 +26,7 @@ interface Skill {
   content: string | null
   type: string
   createdAt: Date
-  author: { nickname: string; email: string }
+  author: { nickname: string | null; email: string }
   category: { name: string }
 }
 

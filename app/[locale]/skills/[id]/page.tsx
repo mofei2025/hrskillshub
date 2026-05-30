@@ -24,7 +24,7 @@ export default async function SkillDetailPage({ params }: PageProps) {
     where: { id, status: 'PUBLISHED' },
     include: {
       category: true,
-      author: { select: { id: true, nickname: true, avatarUrl: true } },
+      author: { select: { id: true, nickname: true, name: true, email: true, avatarUrl: true } },
       _count: { select: { comments: true, favorites: true } },
     },
   })
@@ -159,15 +159,15 @@ export default async function SkillDetailPage({ params }: PageProps) {
             </div>
             <div className="p-4">
               <Link
-                href={`/authors/${skill.author.nickname}`}
+                href={`/authors/${skill.author.nickname ?? skill.author.id}`}
                 className="flex items-center gap-3 hover:text-brand transition-colors group"
               >
                 <div className="w-10 h-10 bg-[var(--hero-bg)] border border-border flex items-center justify-center text-sm font-heading font-black">
-                  {skill.author.nickname.charAt(0).toUpperCase()}
+                  {(skill.author.nickname ?? skill.author.email).charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <div className="font-medium group-hover:text-brand transition-colors">
-                    {skill.author.nickname}
+                    {skill.author.nickname ?? skill.author.email}
                   </div>
                   <div className="text-xs text-muted-foreground">查看主页 →</div>
                 </div>

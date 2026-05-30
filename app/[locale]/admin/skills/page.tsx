@@ -20,7 +20,13 @@ async function getAllSkills(page: number) {
       skip: (page - 1) * pageSize,
       take: pageSize,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        type: true,
+        status: true,
+        securityGrade: true,
+        createdAt: true,
         author: { select: { nickname: true } },
         category: { select: { name: true } },
       },

@@ -13,7 +13,7 @@ export async function Nav() {
           href="/"
           className="font-heading text-lg font-black tracking-tight hover:text-brand transition-colors"
         >
-          HR<span className="text-brand">Skills</span>Hub
+          HR<span className="text-brand">Skiil</span>Hub
         </Link>
 
         {/* 主导航 */}

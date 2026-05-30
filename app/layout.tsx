@@ -23,7 +23,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'HRSkillsHub - HR 行业 AI Skills 分享平台',
+  title: 'HRSkiilHub - HR 行业 AI Skills 分享平台',
   description: '专为 HR 从业者打造的 AI Skills 与提示词分享社区，精选经过安全审核的提示词与技能包',
 }
 

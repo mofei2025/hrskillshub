@@ -19,6 +19,8 @@ export default async function AuthorPage({ params }: PageProps) {
     select: {
       id: true,
       nickname: true,
+      name: true,
+      email: true,
       avatarUrl: true,
       bio: true,
       createdAt: true,
@@ -80,11 +82,11 @@ export default async function AuthorPage({ params }: PageProps) {
       <section className="border border-border p-8 mb-8 bg-[var(--hero-bg)]">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <div className="w-20 h-20 bg-foreground text-background flex items-center justify-center text-3xl font-heading font-black border border-border flex-shrink-0">
-            {user.nickname.charAt(0).toUpperCase()}
+            {(user.nickname ?? user.name ?? user.email).charAt(0).toUpperCase()}
           </div>
           <div className="flex-1">
             <h1 className="font-heading text-2xl font-black tracking-tight mb-1">
-              {user.nickname}
+              {user.nickname ?? user.name ?? user.email}
             </h1>
             <p className="text-sm font-mono text-muted-foreground mb-2">@{user.id.slice(0, 8)}</p>
             {user.bio && (

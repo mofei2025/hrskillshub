@@ -1,11 +1,32 @@
 import NextAuth from 'next-auth'
+import { PrismaAdapter } from '@auth/prisma-adapter'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import GitHub from 'next-auth/providers/github'
 import bcrypt from 'bcryptjs'
 import { db } from './db'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(db),
   session: { strategy: 'jwt' },
   providers: [
+    // GitHub OAuth 登录
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: String(profile.id),
+          name: profile.name ?? profile.login,
+          nickname: profile.login,
+          email: profile.email ?? `${profile.login}@github.noemail`,
+          image: profile.avatar_url,
+          avatarUrl: profile.avatar_url,
+          role: 'USER',
+        }
+      },
+    }),
+
+    // 邮箱 + 密码登录
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -19,7 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { email: credentials.email as string },
         })
 
-        if (!user) return null
+        if (!user?.password) return null
 
         const isValid = await bcrypt.compare(
           credentials.password as string,
@@ -31,7 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return {
           id: user.id,
           email: user.email,
-          name: user.nickname,
+          name: user.nickname ?? user.name ?? user.email,
           role: user.role,
         }
       },
@@ -40,15 +61,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role
         token.id = user.id
+        token.role = (user as { role?: string }).role ?? 'USER'
       }
       return token
     },
-    session({ session, token }) {
+    async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as string
-        session.user.id = token.id as string
+        session.user.id = (token.id ?? token.sub) as string
+        session.user.role = (token.role as string) ?? 'USER'
       }
       return session
     },
