@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "skills": "Skills",
+    "authors": "作者",
+    "docs": "文档",
+    "submit": "提交 Skill",
+    "login": "登录",
+    "admin": "管理",
+    "profile": "我的",
+    "lang": "中 / EN"
+  },
+  "home": {
+    "badge": "HR AI Skills Marketplace",
+    "title": "发现最好的 HR AI Skills",
+    "subtitle": "精选经过安全审核的 HR 提示词与技能包",
+    "searchPlaceholder": "搜索 Skills，例如：面试话术、OKR 助手…",
+    "searchBtn": "搜索",
+    "hotTags": "热门搜索",
+    "browseByCategory": "按分类浏览",
+    "hotSkills": "热门 Skills",
+    "viewAll": "查看全部 →",
+    "stats": {
+      "skills": "Skills",
+      "installs": "次安装",
+      "contributors": "贡献者",
+      "gradeA": "Grade A"
+    }
+  },
+  "skill": {
+    "install": "安装方式",
+    "claudeCode": "Claude Code",
+    "copyContent": "复制内容",
+    "downloadFile": "下载文件",
+    "copyBtn": "复制",
+    "copied": "已复制 ✓",
+    "downloadBtn": "下载文件",
+    "preview": "内容预览",
+    "versionHistory": "版本历史",
+    "security": "安全评级",
+    "relatedSkills": "相关 Skills",
+    "author": "作者",
+    "compatibleAi": "兼容 AI",
+    "installs": "次安装",
+    "noFile": "此 Skill 暂无可下载文件",
+    "noContent": "暂无可复制的文本内容"
+  },
+  "grade": {
+    "A": "✓ Grade A",
+    "B": "Grade B",
+    "C": "Grade C",
+    "PENDING": "待评级"
+  },
+  "author": {
+    "follow": "关注",
+    "following": "已关注",
+    "joinedAt": "加入于",
+    "publishedSkills": "发布的 Skills",
+    "recentActivity": "近期活动",
+    "totalInstalls": "总安装量",
+    "avgRating": "平均评分",
+    "followers": "关注者",
+    "noSkills": "暂无已发布的 Skills",
+    "noActivity": "暂无活动记录",
+    "published": "发布了新 Skill"
+  }
+}

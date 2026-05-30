@@ -31,10 +31,12 @@ export async function Nav() {
 
         {/* 右侧操作区 */}
         <div className="flex items-center gap-3">
-          {/* 语言切换（占位，Task 17 实现） */}
-          <span className="hidden md:block text-xs text-muted-foreground cursor-not-allowed">
-            中 / EN
-          </span>
+          {/* 语言切换 */}
+          <div className="hidden md:flex items-center gap-1 text-xs text-muted-foreground border-r border-border pr-3">
+            <a href="/" className="hover:text-foreground transition-colors">中</a>
+            <span>/</span>
+            <a href="/en" className="hover:text-foreground transition-colors">EN</a>
+          </div>
 
           {/* 明暗模式 */}
           <ThemeToggle />

@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "skills": "Skills",
+    "authors": "Authors",
+    "docs": "Docs",
+    "submit": "Submit Skill",
+    "login": "Login",
+    "admin": "Admin",
+    "profile": "Profile",
+    "lang": "EN / 中"
+  },
+  "home": {
+    "badge": "HR AI Skills Marketplace",
+    "title": "Discover the Best HR AI Skills",
+    "subtitle": "Curated HR prompts and skill packs, security-reviewed",
+    "searchPlaceholder": "Search Skills, e.g. Interview scripts, OKR assistant…",
+    "searchBtn": "Search",
+    "hotTags": "Popular Searches",
+    "browseByCategory": "Browse by Category",
+    "hotSkills": "Featured Skills",
+    "viewAll": "View All →",
+    "stats": {
+      "skills": "Skills",
+      "installs": "Installs",
+      "contributors": "Contributors",
+      "gradeA": "Grade A"
+    }
+  },
+  "skill": {
+    "install": "Install",
+    "claudeCode": "Claude Code",
+    "copyContent": "Copy Content",
+    "downloadFile": "Download",
+    "copyBtn": "Copy",
+    "copied": "Copied ✓",
+    "downloadBtn": "Download File",
+    "preview": "Content Preview",
+    "versionHistory": "Version History",
+    "security": "Security Grade",
+    "relatedSkills": "Related Skills",
+    "author": "Author",
+    "compatibleAi": "Compatible AI",
+    "installs": "installs",
+    "noFile": "No downloadable file available",
+    "noContent": "No text content to copy"
+  },
+  "grade": {
+    "A": "✓ Grade A",
+    "B": "Grade B",
+    "C": "Grade C",
+    "PENDING": "Pending Review"
+  },
+  "author": {
+    "follow": "Follow",
+    "following": "Following",
+    "joinedAt": "Joined",
+    "publishedSkills": "Published Skills",
+    "recentActivity": "Recent Activity",
+    "totalInstalls": "Total Installs",
+    "avgRating": "Avg Rating",
+    "followers": "Followers",
+    "noSkills": "No published Skills yet",
+    "noActivity": "No recent activity",
+    "published": "Published a new Skill"
+  }
+}
