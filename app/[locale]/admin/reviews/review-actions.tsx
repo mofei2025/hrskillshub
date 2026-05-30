@@ -12,8 +12,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { ChevronDown, ChevronUp } from 'lucide-react'
-
 const TYPE_LABELS: Record<string, string> = {
   PROMPT: 'Skill',
   CLAUDE_SKILL: 'Skill',
@@ -23,7 +21,6 @@ interface Skill {
   id: string
   title: string
   description: string
-  content: string | null
   type: string
   createdAt: Date
   author: { nickname: string | null; email: string }
@@ -32,7 +29,6 @@ interface Skill {
 
 export function ReviewActions({ skill }: { skill: Skill }) {
   const router = useRouter()
-  const [expanded, setExpanded] = useState(false)
   const [loading, setLoading] = useState(false)
   const [rejectOpen, setRejectOpen] = useState(false)
   const [feedback, setFeedback] = useState('')
@@ -73,10 +69,6 @@ export function ReviewActions({ skill }: { skill: Skill }) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Button variant="outline" size="sm" onClick={() => setExpanded((v) => !v)}>
-            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            {expanded ? '收起' : '查看内容'}
-          </Button>
           <Button size="sm" onClick={() => handleAction('APPROVED')} disabled={loading}>
             通过
           </Button>
@@ -85,15 +77,6 @@ export function ReviewActions({ skill }: { skill: Skill }) {
           </Button>
         </div>
       </div>
-
-      {expanded && skill.content && (
-        <div className="mt-3 rounded-md bg-gray-50 p-3 text-sm font-mono whitespace-pre-wrap max-h-64 overflow-y-auto border">
-          {skill.content}
-        </div>
-      )}
-      {expanded && !skill.content && (
-        <p className="mt-3 text-sm text-gray-400">（该 Skill 无文本内容，可能是文件上传方式）</p>
-      )}
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent>
