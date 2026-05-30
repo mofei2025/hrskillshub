@@ -31,8 +31,8 @@ async function getSkills(searchParams: Record<string, string>) {
     ]
 
   const orderBy: Prisma.SkillOrderByWithRelationInput =
-    sort === 'downloads'
-      ? { downloadCount: 'desc' }
+    sort === 'installs'
+      ? { installCount: 'desc' }
       : sort === 'favorites'
         ? { favoriteCount: 'desc' }
         : { publishedAt: 'desc' }

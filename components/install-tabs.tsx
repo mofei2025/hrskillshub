@@ -45,6 +45,13 @@ export function InstallTabs({ skillId, slug, content, fileUrl }: InstallTabsProp
     }
     setCopied(key)
     setTimeout(() => setCopied(null), 2000)
+
+    // 记录安装统计（fire-and-forget）
+    fetch(`/api/skills/${skillId}/download`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ installType: 'COPY_COMMAND' }),
+    }).catch(() => {})
   }
 
   const CopyBtn = ({ text, id, label = '复制' }: { text: string; id: string; label?: string }) => (

@@ -14,7 +14,7 @@ interface Props {
 
 const SORTS = [
   { label: '最新', value: '' },
-  { label: '最多下载', value: 'downloads' },
+  { label: '最多安装', value: 'installs' },
   { label: '最多收藏', value: 'favorites' },
 ]
 

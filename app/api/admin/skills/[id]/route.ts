@@ -52,7 +52,14 @@ export async function DELETE(
     return NextResponse.json({ error: '无权限' }, { status: 403 })
   }
 
-  await db.skill.delete({ where: { id: params.id } })
+  // 先删除无 Cascade 的关联记录，再删除 Skill
+  await db.$transaction([
+    db.favorite.deleteMany({ where: { skillId: params.id } }),
+    db.download.deleteMany({ where: { skillId: params.id } }),
+    db.comment.deleteMany({ where: { skillId: params.id } }),
+    db.skill.delete({ where: { id: params.id } }),
+  ])
+
   revalidatePath('/skills')
   revalidatePath('/authors')
   return NextResponse.json({ ok: true })

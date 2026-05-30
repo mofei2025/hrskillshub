@@ -7,26 +7,28 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   const session = await auth()
-  if (!session?.user) {
-    return NextResponse.json({ error: '请先登录' }, { status: 401 })
-  }
-
   const { installType } = await req.json()
 
-  await db.download.create({
-    data: {
-      skillId: params.id,
-      userId: session.user.id,
-      installType: installType.toUpperCase(),
-    },
-  })
+  const validTypes = ['COPY_PROMPT', 'COPY_COMMAND', 'DOWNLOAD_FILE']
+  const type = validTypes.includes(installType?.toUpperCase())
+    ? installType.toUpperCase()
+    : 'COPY_COMMAND'
 
+  // 登录用户记录详细下载记录
+  if (session?.user?.id) {
+    await db.download.create({
+      data: {
+        skillId: params.id,
+        userId: session.user.id,
+        installType: type,
+      },
+    }).catch(() => {}) // 忽略重复等错误
+  }
+
+  // 所有用户（包括未登录）都计入安装次数
   await db.skill.update({
     where: { id: params.id },
-    data: {
-      downloadCount: { increment: 1 },
-      installCount: { increment: 1 },
-    },
+    data: { installCount: { increment: 1 } },
   })
 
   return NextResponse.json({ success: true })
