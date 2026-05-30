@@ -33,7 +33,7 @@ export default async function AuthorPage({ params }: PageProps) {
 
   if (!user) notFound()
 
-  const [skills, installAgg, ratingAgg] = await Promise.all([
+  const [skills, installAgg, ratingAgg, followRecord] = await Promise.all([
     db.skill.findMany({
       where: { authorId: user.id, status: 'PUBLISHED' },
       include: {
@@ -50,28 +50,29 @@ export default async function AuthorPage({ params }: PageProps) {
       where: { skill: { authorId: user.id, status: 'PUBLISHED' } },
       _avg: { rating: true },
     }),
+    session?.user?.id
+      ? db.follow.findUnique({
+          where: {
+            followerId_followingId: {
+              followerId: session.user.id,
+              followingId: user.id,
+            },
+          },
+        })
+      : Promise.resolve(null),
   ])
 
   const totalInstalls = installAgg._sum.installCount ?? 0
   const avgRating = ratingAgg._avg.rating?.toFixed(1) ?? null
+  const isFollowing = !!followRecord
 
-  const isFollowing = session?.user?.id
-    ? !!(await db.follow.findUnique({
-        where: {
-          followerId_followingId: {
-            followerId: session.user.id,
-            followingId: user.id,
-          },
-        },
-      }))
-    : false
-
-  const recentActivity = await db.skill.findMany({
-    where: { authorId: user.id, status: 'PUBLISHED' },
-    select: { id: true, title: true, publishedAt: true, createdAt: true },
-    orderBy: { publishedAt: 'desc' },
-    take: 5,
-  })
+  const recentActivity = [...skills]
+    .sort((a, b) => {
+      const aDate = a.publishedAt ?? a.createdAt
+      const bDate = b.publishedAt ?? b.createdAt
+      return new Date(bDate).getTime() - new Date(aDate).getTime()
+    })
+    .slice(0, 5)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

@@ -31,17 +31,19 @@ export default async function SkillDetailPage({ params }: PageProps) {
 
   if (!skill) notFound()
 
-  const avgRatingResult = await db.comment.aggregate({
-    where: { skillId: id },
-    _avg: { rating: true },
-    _count: { rating: true },
-  })
-
-  const userFavorited = session?.user?.id
-    ? !!(await db.favorite.findUnique({
-        where: { userId_skillId: { userId: session.user.id, skillId: id } },
-      }))
-    : false
+  const [avgRatingResult, favRecord] = await Promise.all([
+    db.comment.aggregate({
+      where: { skillId: id },
+      _avg: { rating: true },
+      _count: { rating: true },
+    }),
+    session?.user?.id
+      ? db.favorite.findUnique({
+          where: { userId_skillId: { userId: session.user.id, skillId: id } },
+        })
+      : Promise.resolve(null),
+  ])
+  const userFavorited = !!favRecord
 
   const avgRating = avgRatingResult._avg.rating?.toFixed(1) ?? null
 
@@ -157,7 +159,7 @@ export default async function SkillDetailPage({ params }: PageProps) {
             </div>
             <div className="p-4">
               <Link
-                href={`/authors/${skill.author.id}`}
+                href={`/authors/${skill.author.nickname}`}
                 className="flex items-center gap-3 hover:text-brand transition-colors group"
               >
                 <div className="w-10 h-10 bg-[var(--hero-bg)] border border-border flex items-center justify-center text-sm font-heading font-black">

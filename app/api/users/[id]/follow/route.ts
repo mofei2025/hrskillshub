@@ -20,25 +20,30 @@ export async function POST(
     const target = await db.user.findUnique({ where: { id: targetId } })
     if (!target) return NextResponse.json({ error: '用户不存在' }, { status: 404 })
 
-    const existing = await db.follow.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId: session.user.id,
-          followingId: targetId,
-        },
-      },
-    })
-
-    if (existing) {
-      await db.follow.delete({ where: { id: existing.id } })
-      const count = await db.follow.count({ where: { followingId: targetId } })
-      return NextResponse.json({ following: false, followerCount: count })
-    } else {
+    try {
+      // 先尝试创建（如果已存在会报 unique constraint）
       await db.follow.create({
         data: { followerId: session.user.id, followingId: targetId },
       })
       const count = await db.follow.count({ where: { followingId: targetId } })
       return NextResponse.json({ following: true, followerCount: count })
+    } catch (createError: unknown) {
+      // 检查是否是唯一约束冲突（P2002 是 Prisma 的唯一约束错误码）
+      const isPrismaUniqueError =
+        typeof createError === 'object' &&
+        createError !== null &&
+        'code' in createError &&
+        (createError as { code: string }).code === 'P2002'
+
+      if (isPrismaUniqueError) {
+        // 已经关注了，执行取消关注
+        await db.follow.deleteMany({
+          where: { followerId: session.user.id, followingId: targetId },
+        })
+        const count = await db.follow.count({ where: { followingId: targetId } })
+        return NextResponse.json({ following: false, followerCount: count })
+      }
+      throw createError // 其他错误重新抛出，由外层 try-catch 处理
     }
   } catch (error) {
     console.error('关注 API 错误:', error)
