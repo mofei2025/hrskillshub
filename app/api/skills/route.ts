@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { title, description, content, type, compatibleAi, categoryId, fileUrl } = body
+  const { title, description, content, type, compatibleAi, categoryId, fileUrl, version, changelog } = body
 
   if (!title || !description || !type || !categoryId) {
     return NextResponse.json({ error: '请填写必填项' }, { status: 400 })
@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
       categoryId,
       authorId: session.user.id,
       status,
+      version: version ?? '1.0.0',
       publishedAt: status === 'PUBLISHED' ? new Date() : null,
     },
   })

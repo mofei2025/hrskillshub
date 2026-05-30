@@ -129,6 +129,8 @@ export function SubmitTabs({ categories }: SubmitTabsProps) {
     compatibleAi: [] as string[],
     content: '',
     fileUrl: '',
+    version: '1.0.0',
+    changelog: '',
   }
 
   const [form, setForm] = useState(defaultForm)
@@ -255,6 +257,26 @@ export function SubmitTabs({ categories }: SubmitTabsProps) {
           {message}
         </p>
       )}
+
+      {/* 版本信息 */}
+      <div className="mt-6 grid grid-cols-2 gap-4">
+        <div>
+          <Label>版本号</Label>
+          <Input
+            value={form.version}
+            onChange={e => updateForm('version', e.target.value)}
+            placeholder="例如：1.0.0"
+          />
+        </div>
+        <div>
+          <Label>更新说明</Label>
+          <Input
+            value={form.changelog}
+            onChange={e => updateForm('changelog', e.target.value)}
+            placeholder="简述本版本的改动"
+          />
+        </div>
+      </div>
 
       <Button type="submit" className="mt-6 w-full" disabled={loading}>
         {loading ? '提交中...' : '提交 Skill'}
