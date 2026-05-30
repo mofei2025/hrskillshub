@@ -80,6 +80,9 @@
 
     /* 无圆角 */
     --radius: 0rem;
+    --radius-sm: 0rem;
+    --radius-md: 0rem;
+    --radius-lg: 0rem;
 
     /* 图表色 */
     --chart-1: #000000;
