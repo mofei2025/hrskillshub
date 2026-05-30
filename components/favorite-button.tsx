@@ -1,50 +1,50 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 import { Heart } from 'lucide-react'
 
 interface FavoriteButtonProps {
   skillId: string
-  initialCount: number
+  initialFavorited: boolean
+  favoriteCount: number
 }
 
-export function FavoriteButton({ skillId, initialCount }: FavoriteButtonProps) {
-  const { data: session } = useSession()
+export function FavoriteButton({ skillId, initialFavorited, favoriteCount }: FavoriteButtonProps) {
   const router = useRouter()
-  const [count, setCount] = useState(initialCount)
-  const [favorited, setFavorited] = useState(false)
+  const [favorited, setFavorited] = useState(initialFavorited)
+  const [count, setCount] = useState(favoriteCount)
   const [loading, setLoading] = useState(false)
 
   async function handleClick() {
-    if (!session) {
-      router.push('/login')
-      return
-    }
     setLoading(true)
-    const res = await fetch(`/api/skills/${skillId}/favorite`, { method: 'POST' })
-    if (!res.ok) {
+    try {
+      const res = await fetch(`/api/skills/${skillId}/favorite`, { method: 'POST' })
+      if (!res.ok) {
+        if (res.status === 401) {
+          router.push('/login')
+          return
+        }
+        return
+      }
+      const data = await res.json()
+      setFavorited(data.favorited)
+      setCount(data.count ?? (data.favorited ? count + 1 : count - 1))
+    } finally {
       setLoading(false)
-      return
     }
-    const { favorited: newFavorited } = await res.json()
-    setFavorited(newFavorited)
-    setCount(c => newFavorited ? c + 1 : c - 1)
-    setLoading(false)
   }
 
   return (
-    <Button
-      variant={favorited ? 'default' : 'outline'}
-      size="sm"
+    <button
       onClick={handleClick}
       disabled={loading}
-      className="gap-1 shrink-0"
+      className={`flex items-center gap-1.5 text-sm transition-colors disabled:opacity-50 ${
+        favorited ? 'text-brand' : 'text-muted-foreground hover:text-brand'
+      }`}
     >
-      <Heart className={`h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
-      {count}
-    </Button>
+      <Heart size={14} className={favorited ? 'fill-current' : ''} />
+      {count} 收藏
+    </button>
   )
 }
