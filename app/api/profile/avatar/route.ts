@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ avatarUrl })
-  } catch {
+  } catch (err) {
+    console.error('[avatar upload error]', err)
     return NextResponse.json({ error: '上传失败，请重试' }, { status: 500 })
   }
 }
