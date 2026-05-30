@@ -111,21 +111,61 @@
 
 #### F. 安全评级系统（Grade A/B/C）
 
-**评级规则（简化版，MVP 阶段由管理员手动评定）**：
+参考 skillsdirectory.com 的方式，集成开源工具 **Cisco AI Defense skill-scanner**（Apache 许可证，`github.com/cisco-ai-defense/skill-scanner`）实现自动扫描，管理员可手动覆盖评级。
 
-| 等级 | 描述 | 展示 |
-|------|------|------|
-| Grade A | 无安全风险，推荐使用 | 绿色 `✓ Grade A` 徽章 |
-| Grade B | 存在低风险项（如外部链接） | 黄色 `Grade B` 徽章 |
-| Grade C | 存在中风险项，谨慎使用 | 橙色 `Grade C` 徽章 |
-| 待审核 | 尚未完成安全评估 | 灰色 `待评级` 徽章 |
+**评级标准（基于 100 分起扣，参考业界共识）**：
+
+| 等级 | 分数区间 | 描述 | 展示 |
+|------|----------|------|------|
+| Grade A | 90–100 | 无安全风险，推荐使用 | 绿色 `✓ Grade A` 徽章 |
+| Grade B | 70–89 | 存在低风险项（如外部链接） | 黄色 `Grade B` 徽章 |
+| Grade C | < 70 | 存在中/高风险项，谨慎使用 | 橙色 `Grade C` 徽章 |
+| 待审核 | — | 扫描进行中或尚未触发 | 灰色 `待评级` 徽章 |
+
+低置信度发现扣分减半（与 skillsdirectory.com 逻辑一致）。
+
+**10 个威胁类别（skill-scanner 覆盖范围）**：
+
+1. 提示词注入（Prompt Injection）
+2. 凭据盗取（Credential Theft）
+3. 数据外泄（Data Exfiltration）
+4. 代码执行（Code Execution）
+5. Unicode 隐藏指令（Hidden Unicode Instructions）
+6. 混淆/编码（Obfuscation：base64、同形字）
+7. 权限提升（Privilege Escalation）
+8. 供应链攻击（Supply Chain Risk）
+9. 语义操纵（Semantic Manipulation）
+10. 行为控制（Behavioral Control）
+
+**扫描流程**：
+
+```
+用户提交 Skill（内容写入数据库，状态 PENDING）
+    ↓
+后端触发异步任务（队列/后台 job）
+    ↓
+调用 skill-scanner CLI（子进程执行，超时 30s）
+    ↓
+解析 JSON 结果 → 计算分数 → 写入 securityGrade + securityNotes
+    ↓
+管理员审核时可查看扫描详情，可手动覆盖评级（记录覆盖原因）
+    ↓
+前端展示 Grade 徽章 + 各类别扫描条目（通过 ✓ / 警告 ⚠）
+```
+
+**实现方式**：
+
+- 安装：`npm install -g @cisco-ai-defense/skill-scanner`（或作为项目依赖）
+- 调用：`skill-scanner scan <skill-file-path> --output json`
+- 后端用 Node.js `child_process.execFile` 异步调用，避免阻塞主线程
+- 扫描结果为 JSON，解析后存入 `Skill.securityNotes`（包含每条发现的类别、严重度、描述）
 
 **展示位置**：
 - Skills 列表卡片：右上角小徽章
 - Skill 详情页：顶部 badges 行 + 右侧栏安全详情面板
-- 详情页安全面板：Grade 大字母 + 扫描条目（通过/警告）
+- 详情页安全面板：Grade 大字母 + 各类别扫描条目列表
 
-**数据库**：`Skill` 表新增 `securityGrade`（枚举：A/B/C/PENDING）和 `securityNotes`（JSON，存储扫描详情）字段。
+**数据库**：`Skill` 表新增 `securityGrade`（枚举：A/B/C/PENDING）、`securityScore`（Int，0-100）、`securityNotes`（JSON，存储各类别扫描详情）、`securityOverriddenBy`（String，记录手动覆盖的管理员 ID）字段。
 
 ---
 
