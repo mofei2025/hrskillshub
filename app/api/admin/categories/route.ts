@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const category = await db.category.create({ data: { name, slug } })
+    revalidatePath('/skills')
     return NextResponse.json({ category }, { status: 201 })
   } catch (e: any) {
     if (e?.code === 'P2002') {

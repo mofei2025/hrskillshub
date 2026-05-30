@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { auth } from '@/lib/auth'
 import { SecurityGrade } from '@prisma/client'
@@ -32,6 +33,8 @@ export async function PATCH(
       },
     })
 
+    revalidatePath('/skills')
+    revalidatePath(`/skills/${id}`)
     return NextResponse.json(updated)
   } catch (error) {
     console.error('安全评级 API 错误:', error)

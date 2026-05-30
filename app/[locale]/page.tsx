@@ -73,7 +73,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-            精选 {totalSkills}+ 个经过安全审核的 HR 提示词与技能包
+            精选 {totalSkills}+ 个经过安全审核的 HR Skills
           </p>
 
           {/* 搜索框 */}

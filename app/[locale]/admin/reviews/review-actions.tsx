@@ -15,8 +15,8 @@ import {
 import { ChevronDown, ChevronUp } from 'lucide-react'
 
 const TYPE_LABELS: Record<string, string> = {
-  PROMPT: '提示词',
-  CLAUDE_SKILL: 'Claude Skill',
+  PROMPT: 'Skill',
+  CLAUDE_SKILL: 'Skill',
 }
 
 interface Skill {

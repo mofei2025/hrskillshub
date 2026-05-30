@@ -7,7 +7,7 @@ export default async function SubmitPage() {
   const session = await auth()
   if (!session?.user) redirect('/login')
 
-  const categories = await db.category.findMany({ orderBy: { name: 'asc' } })
+  const categories = await db.category.findMany({ orderBy: [{ order: 'asc' }, { name: 'asc' }] })
 
   return (
     <div className="min-h-screen">

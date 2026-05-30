@@ -3,7 +3,7 @@ import { CategoryActions } from './category-actions'
 
 async function getCategories() {
   return db.category.findMany({
-    orderBy: { name: 'asc' },
+    orderBy: [{ order: 'asc' }, { name: 'asc' }],
     include: { _count: { select: { skills: true } } },
   })
 }

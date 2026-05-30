@@ -8,14 +8,9 @@ const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secon
   REJECTED: { label: '已拒绝', variant: 'destructive' },
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  PROMPT: '提示词',
-  CLAUDE_SKILL: 'Claude Skill',
-}
-
 async function getAllSkills(page: number) {
   const pageSize = 20
-  const [skills, total] = await Promise.all([
+  const [skills, total, categories] = await Promise.all([
     db.skill.findMany({
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -23,17 +18,22 @@ async function getAllSkills(page: number) {
       select: {
         id: true,
         title: true,
+        description: true,
         type: true,
         status: true,
         securityGrade: true,
+        content: true,
+        fileUrl: true,
         createdAt: true,
+        categoryId: true,
         author: { select: { nickname: true } },
         category: { select: { name: true } },
       },
     }),
     db.skill.count(),
+    db.category.findMany({ orderBy: { order: 'asc' }, select: { id: true, name: true } }),
   ])
-  return { skills, total, pageSize }
+  return { skills, total, pageSize, categories }
 }
 
 export default async function AdminSkillsPage({
@@ -42,7 +42,7 @@ export default async function AdminSkillsPage({
   searchParams: { page?: string }
 }) {
   const page = Math.max(1, parseInt(searchParams.page ?? '1', 10))
-  const { skills, total, pageSize } = await getAllSkills(page)
+  const { skills, total, pageSize, categories } = await getAllSkills(page)
   const totalPages = Math.ceil(total / pageSize)
 
   return (
@@ -57,12 +57,11 @@ export default async function AdminSkillsPage({
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="text-left px-4 py-3 font-medium text-gray-600">标题</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600 w-20">类型</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600 w-24">分类</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600 w-20">作者</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600 w-24">状态</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600 w-28">提交时间</th>
-              <th className="px-4 py-3 w-64"></th>
+              <th className="px-4 py-3 w-72"></th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -71,7 +70,6 @@ export default async function AdminSkillsPage({
               return (
                 <tr key={skill.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-900 max-w-xs truncate">{skill.title}</td>
-                  <td className="px-4 py-3 text-gray-500">{TYPE_LABELS[skill.type] ?? skill.type}</td>
                   <td className="px-4 py-3 text-gray-500">{skill.category.name}</td>
                   <td className="px-4 py-3 text-gray-500">{skill.author.nickname}</td>
                   <td className="px-4 py-3">
@@ -81,7 +79,10 @@ export default async function AdminSkillsPage({
                     {new Date(skill.createdAt).toLocaleDateString('zh-CN')}
                   </td>
                   <td className="px-4 py-3">
-                    <SkillRowActions skillId={skill.id} currentStatus={skill.status} initialGrade={skill.securityGrade} />
+                    <SkillRowActions
+                      skill={skill}
+                      categories={categories}
+                    />
                   </td>
                 </tr>
               )

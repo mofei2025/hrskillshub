@@ -48,11 +48,11 @@ export function InstallGuide({ skillId, skillTitle, content, fileUrl, type }: In
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">如何使用</h2>
 
-      {/* 第一级：复制提示词 */}
+      {/* 第一级：复制内容 */}
       <div className="border rounded-lg p-4">
         <div className="flex items-center gap-2 mb-2">
           <Badge className="bg-green-100 text-green-700 border-green-200">简单</Badge>
-          <span className="font-medium">① 直接复制提示词</span>
+          <span className="font-medium">① 直接复制 Skill 内容</span>
         </div>
         <p className="text-sm text-gray-500 mb-3">
           适合所有人，粘贴到 DeepSeek、ChatGPT、Claude 等任意 AI 对话框即可使用
@@ -70,7 +70,7 @@ export function InstallGuide({ skillId, skillTitle, content, fileUrl, type }: In
             disabled={!content}
             className="gap-2"
           >
-            {copied === 'prompt' ? <><Check className="h-4 w-4" />已复制</> : <><Copy className="h-4 w-4" />复制提示词</>}
+            {copied === 'prompt' ? <><Check className="h-4 w-4" />已复制</> : <><Copy className="h-4 w-4" />复制内容</>}
           </Button>
         ) : <LoginPrompt />}
       </div>

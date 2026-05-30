@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { SkillCard } from '@/components/skill-card'
@@ -25,7 +26,7 @@ export default async function ProfilePage() {
   const [user, mySkills, myFavorites] = await Promise.all([
     db.user.findUnique({
       where: { id: session.user.id },
-      select: { nickname: true, name: true, email: true, role: true, bio: true, createdAt: true },
+      select: { nickname: true, name: true, email: true, role: true, bio: true, avatarUrl: true, createdAt: true },
     }),
     db.skill.findMany({
       where: { authorId: session.user.id },
@@ -59,8 +60,14 @@ export default async function ProfilePage() {
       <section className="border border-border p-8 mb-8 bg-[var(--hero-bg)]">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           {/* 头像 */}
-          <div className="w-20 h-20 bg-foreground text-background flex items-center justify-center text-3xl font-heading font-black border border-border flex-shrink-0">
-            {displayName.charAt(0).toUpperCase()}
+          <div className="w-20 h-20 border border-border flex-shrink-0 overflow-hidden">
+            {user.avatarUrl ? (
+              <Image src={user.avatarUrl} alt={displayName} width={80} height={80} className="object-cover w-full h-full" />
+            ) : (
+              <div className="w-full h-full bg-foreground text-background flex items-center justify-center text-3xl font-heading font-black">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
 
           {/* 信息 */}
@@ -84,7 +91,12 @@ export default async function ProfilePage() {
           </div>
 
           {/* 编辑按钮 */}
-          <ProfileEditForm initialNickname={user.nickname} initialBio={user.bio} />
+          <ProfileEditForm
+            initialNickname={user.nickname}
+            initialBio={user.bio}
+            initialAvatarUrl={user.avatarUrl}
+            displayName={displayName}
+          />
         </div>
       </section>
 
@@ -107,22 +119,15 @@ export default async function ProfilePage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-heading text-lg font-black uppercase tracking-tight">
             我的上传
-            <span className="text-muted-foreground font-mono text-sm ml-2 normal-case tracking-normal">
-              ({mySkills.length})
-            </span>
+            <span className="text-muted-foreground font-mono text-sm ml-2 normal-case tracking-normal">({mySkills.length})</span>
           </h2>
-          <Link
-            href="/submit"
-            className="text-xs font-mono uppercase tracking-wider border border-border px-3 py-1.5 hover:border-brand hover:text-brand transition-colors"
-          >
+          <Link href="/submit" className="text-xs font-mono uppercase tracking-wider border border-border px-3 py-1.5 hover:border-brand hover:text-brand transition-colors">
             + 上传新 Skill
           </Link>
         </div>
 
         {mySkills.length === 0 ? (
-          <div className="border border-border p-12 text-center text-muted-foreground text-sm">
-            还没有上传过 Skill
-          </div>
+          <div className="border border-border p-12 text-center text-muted-foreground text-sm">还没有上传过 Skill</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border">
             {mySkills.map(skill => (
@@ -141,15 +146,11 @@ export default async function ProfilePage() {
       <section>
         <h2 className="font-heading text-lg font-black uppercase tracking-tight mb-4">
           我的收藏
-          <span className="text-muted-foreground font-mono text-sm ml-2 normal-case tracking-normal">
-            ({myFavorites.length})
-          </span>
+          <span className="text-muted-foreground font-mono text-sm ml-2 normal-case tracking-normal">({myFavorites.length})</span>
         </h2>
 
         {myFavorites.length === 0 ? (
-          <div className="border border-border p-12 text-center text-muted-foreground text-sm">
-            还没有收藏过 Skill
-          </div>
+          <div className="border border-border p-12 text-center text-muted-foreground text-sm">还没有收藏过 Skill</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border">
             {myFavorites.map(({ skill }) => (

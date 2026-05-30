@@ -1,41 +1,39 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 
-const CATEGORIES = [
-  { label: '全部', value: '' },
-  { label: '招聘', value: 'recruitment' },
-  { label: '绩效管理', value: 'performance' },
-  { label: '薪酬福利', value: 'compensation' },
-  { label: '员工关系', value: 'employee-relations' },
-  { label: '培训发展', value: 'training' },
-  { label: '人力规划', value: 'planning' },
-]
+interface Category {
+  id: string
+  name: string
+  slug: string
+}
 
-const TYPES = [
-  { label: '全部类型', value: '' },
-  { label: '提示词', value: 'prompt' },
-  { label: 'Claude Skill', value: 'claude_skill' },
-]
-
-const AI_OPTIONS = [
-  { label: '全部 AI', value: '' },
-  { label: 'DeepSeek', value: 'deepseek' },
-  { label: 'ChatGPT', value: 'chatgpt' },
-  { label: 'Claude', value: 'claude' },
-  { label: '通用', value: 'all' },
-]
+interface Props {
+  categories: Category[]
+}
 
 const SORTS = [
-  { label: '最新', value: 'newest' },
+  { label: '最新', value: '' },
   { label: '最多下载', value: 'downloads' },
   { label: '最多收藏', value: 'favorites' },
 ]
 
-export function SkillFilters() {
+const GRADES = [
+  { value: '', label: '全部等级' },
+  { value: 'A', label: 'S 级' },
+  { value: 'B', label: 'A 级' },
+  { value: 'C', label: 'B 级' },
+]
+
+export function SkillFilters({ categories }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const current = {
+    category: searchParams.get('category') ?? '',
+    sort: searchParams.get('sort') ?? '',
+    grade: searchParams.get('grade') ?? '',
+  }
 
   function setParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString())
@@ -44,104 +42,65 @@ export function SkillFilters() {
     router.push(`/skills?${params.toString()}`)
   }
 
-  const current = {
-    category: searchParams.get('category') ?? '',
-    type: searchParams.get('type') ?? '',
-    ai: searchParams.get('ai') ?? '',
-    sort: searchParams.get('sort') ?? 'newest',
-    grade: searchParams.get('grade') ?? '',
-  }
+  const btnBase = 'text-xs font-mono px-3 py-1 border transition-colors'
+  const btnActive = 'border-brand text-brand bg-brand/5'
+  const btnInactive = 'border-border text-muted-foreground hover:border-foreground hover:text-foreground'
 
   return (
-    <div className="space-y-3">
+    <div className="border border-border bg-[var(--hero-bg)] p-4 space-y-4">
+      {/* 场景分类 */}
       <div>
-        <p className="text-xs text-gray-500 mb-1">场景分类</p>
-        <div className="flex flex-wrap gap-1">
-          {CATEGORIES.map(c => (
-            <Button
-              key={c.value}
-              size="sm"
-              variant={current.category === c.value ? 'default' : 'outline'}
-              onClick={() => setParam('category', c.value)}
-            >
-              {c.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <p className="text-xs text-gray-500 mb-1">类型</p>
-        <div className="flex flex-wrap gap-1">
-          {TYPES.map(t => (
-            <Button
-              key={t.value}
-              size="sm"
-              variant={current.type === t.value ? 'default' : 'outline'}
-              onClick={() => setParam('type', t.value)}
-            >
-              {t.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <p className="text-xs text-gray-500 mb-1">兼容 AI</p>
-        <div className="flex flex-wrap gap-1">
-          {AI_OPTIONS.map(a => (
-            <Button
-              key={a.value}
-              size="sm"
-              variant={current.ai === a.value ? 'default' : 'outline'}
-              onClick={() => setParam('ai', a.value)}
-            >
-              {a.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <p className="text-xs text-gray-500 mb-1">排序</p>
-        <div className="flex flex-wrap gap-1">
-          {SORTS.map(s => (
-            <Button
-              key={s.value}
-              size="sm"
-              variant={current.sort === s.value ? 'default' : 'outline'}
-              onClick={() => setParam('sort', s.value)}
-            >
-              {s.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Grade 安全等级筛选 */}
-      <div>
-        <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
-          安全等级
-        </label>
-        <div className="flex gap-1 flex-wrap">
-          {[
-            { value: 'ALL', label: '全部' },
-            { value: 'A', label: '✓ A' },
-            { value: 'B', label: 'B' },
-            { value: 'C', label: 'C' },
-          ].map(({ value, label }) => (
+        <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">场景分类</p>
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            className={`${btnBase} ${current.category === '' ? btnActive : btnInactive}`}
+            onClick={() => setParam('category', '')}
+          >
+            全部
+          </button>
+          {categories.map(c => (
             <button
-              key={value}
-              onClick={() => setParam('grade', value === 'ALL' ? '' : value)}
-              className={`text-xs px-2 py-1 border transition-colors ${
-                (current.grade || 'ALL') === value
-                  ? 'bg-brand text-white border-brand'
-                  : 'border-border hover:border-foreground'
-              }`}
+              key={c.slug}
+              className={`${btnBase} ${current.category === c.slug ? btnActive : btnInactive}`}
+              onClick={() => setParam('category', c.slug)}
             >
-              {label}
+              {c.name}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* 安全等级 */}
+        <div>
+          <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">安全等级</p>
+          <div className="flex gap-1.5 flex-wrap">
+            {GRADES.map(g => (
+              <button
+                key={g.value}
+                className={`${btnBase} ${current.grade === g.value ? btnActive : btnInactive}`}
+                onClick={() => setParam('grade', g.value)}
+              >
+                {g.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 排序 */}
+        <div>
+          <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">排序</p>
+          <div className="flex gap-1.5 flex-wrap">
+            {SORTS.map(s => (
+              <button
+                key={s.value}
+                className={`${btnBase} ${current.sort === s.value ? btnActive : btnInactive}`}
+                onClick={() => setParam('sort', s.value)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
