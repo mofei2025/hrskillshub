@@ -44,6 +44,7 @@ export function CategoryActions({ categories: initial }: { categories: Category[
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? '添加失败'); return }
       setName(''); setSlug('')
+      setCategories(prev => [...prev, { ...data.category, _count: { skills: 0 } }])
       router.refresh()
     } finally { setLoading(false) }
   }
@@ -55,6 +56,7 @@ export function CategoryActions({ categories: initial }: { categories: Category[
     try {
       const res = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' })
       if (!res.ok) { const d = await res.json(); alert(d.error ?? '删除失败'); return }
+      setCategories(prev => prev.filter(c => c.id !== id))
       router.refresh()
     } finally { setLoading(false) }
   }
@@ -69,6 +71,7 @@ export function CategoryActions({ categories: initial }: { categories: Category[
       })
       const data = await res.json()
       if (!res.ok) { alert(data.error ?? '更新失败'); return }
+      setCategories(prev => prev.map(c => c.id === id ? { ...c, name: editName, slug: editSlug } : c))
       setEditId(null)
       router.refresh()
     } finally { setLoading(false) }
