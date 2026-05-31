@@ -59,6 +59,7 @@ export async function DELETE(
     db.favorite.deleteMany({ where: { skillId: params.id } }),
     db.download.deleteMany({ where: { skillId: params.id } }),
     db.comment.deleteMany({ where: { skillId: params.id } }),
+    db.review.deleteMany({ where: { skillId: params.id } }),
     db.skill.delete({ where: { id: params.id } }),
   ])
 
