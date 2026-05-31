@@ -1,46 +1,15 @@
 import Link from 'next/link'
 import { db } from '@/lib/db'
+import { AdminUmamiStats } from '@/components/admin-umami-stats'
 
 const gradeOrder: Record<string, number> = { S: 0, A: 1, B: 2, C: 3, D: 4 }
 
-const UMAMI_API = 'https://api.umami.is/v1'
-const UMAMI_KEY = process.env.UMAMI_API_KEY ?? ''
-const UMAMI_SITE = process.env.UMAMI_WEBSITE_ID ?? ''
-
-// 获取 Umami 访客数据
-async function getUmamiData() {
-  if (!UMAMI_KEY || !UMAMI_SITE) return null
-
-  const headers = { 'x-umami-api-key': UMAMI_KEY }
-  const now = Date.now()
-  const dayAgo = now - 24 * 60 * 60 * 1000
-  const weekAgo = now - 7 * 24 * 60 * 60 * 1000
-
-  const qs = `startAt=${weekAgo}&endAt=${now}`
-
-  try {
-    const [activeRes, statsRes, pagesRes, referrersRes, browsersRes, devicesRes] = await Promise.all([
-      fetch(`${UMAMI_API}/websites/${UMAMI_SITE}/active`, { headers, next: { revalidate: 60 } }),
-      fetch(`${UMAMI_API}/websites/${UMAMI_SITE}/stats?startAt=${dayAgo}&endAt=${now}`, { headers, next: { revalidate: 300 } }),
-      fetch(`${UMAMI_API}/websites/${UMAMI_SITE}/metrics?type=url&${qs}&limit=8`, { headers, next: { revalidate: 300 } }),
-      fetch(`${UMAMI_API}/websites/${UMAMI_SITE}/metrics?type=referrer&${qs}&limit=6`, { headers, next: { revalidate: 300 } }),
-      fetch(`${UMAMI_API}/websites/${UMAMI_SITE}/metrics?type=browser&${qs}&limit=5`, { headers, next: { revalidate: 300 } }),
-      fetch(`${UMAMI_API}/websites/${UMAMI_SITE}/metrics?type=device&${qs}&limit=5`, { headers, next: { revalidate: 300 } }),
-    ])
-
-    const [active, stats, pages, referrers, browsers, devices] = await Promise.all([
-      activeRes.ok ? activeRes.json() : null,
-      statsRes.ok ? statsRes.json() : null,
-      pagesRes.ok ? pagesRes.json() : null,
-      referrersRes.ok ? referrersRes.json() : null,
-      browsersRes.ok ? browsersRes.json() : null,
-      devicesRes.ok ? devicesRes.json() : null,
-    ])
-
-    return { active, stats, pages, referrers, browsers, devices }
-  } catch {
-    return null
-  }
+const gradeColor: Record<string, string> = {
+  S: 'text-purple-600 border-purple-300',
+  A: 'text-green-600 border-green-300',
+  B: 'text-blue-600 border-blue-300',
+  C: 'text-yellow-600 border-yellow-300',
+  D: 'text-red-600 border-red-300',
 }
 
 async function getDashboardData() {
@@ -56,19 +25,16 @@ async function getDashboardData() {
     totalUsers,
     newUsersToday,
     newUsersThisWeek,
-    totalSkills,
     pendingSkills,
     publishedSkills,
     newSkillsToday,
     newSkillsThisWeek,
     installAgg,
     topSkills,
-    umami,
   ] = await Promise.all([
     db.user.count(),
     db.user.count({ where: { createdAt: { gte: todayStart } } }),
     db.user.count({ where: { createdAt: { gte: weekStart } } }),
-    db.skill.count(),
     db.skill.count({ where: { status: 'PENDING' } }),
     db.skill.count({ where: { status: 'PUBLISHED' } }),
     db.skill.count({ where: { createdAt: { gte: todayStart } } }),
@@ -80,7 +46,6 @@ async function getDashboardData() {
       take: 20,
       select: { id: true, title: true, installCount: true, securityGrade: true },
     }),
-    getUmamiData(),
   ])
 
   const totalInstalls = installAgg._sum.installCount ?? 0
@@ -94,43 +59,21 @@ async function getDashboardData() {
 
   return {
     totalUsers, newUsersToday, newUsersThisWeek,
-    totalSkills, pendingSkills, publishedSkills,
+    pendingSkills, publishedSkills,
     newSkillsToday, newSkillsThisWeek,
-    totalInstalls, top10Skills, umami,
+    totalInstalls, top10Skills,
   }
-}
-
-const gradeColor: Record<string, string> = {
-  S: 'text-purple-600 border-purple-300',
-  A: 'text-green-600 border-green-300',
-  B: 'text-blue-600 border-blue-300',
-  C: 'text-yellow-600 border-yellow-300',
-  D: 'text-red-600 border-red-300',
 }
 
 export default async function AdminPage() {
   const {
     totalUsers, newUsersToday, newUsersThisWeek,
-    totalSkills, pendingSkills, publishedSkills,
+    pendingSkills, publishedSkills,
     newSkillsToday, newSkillsThisWeek,
-    totalInstalls, top10Skills, umami,
+    totalInstalls, top10Skills,
   } = await getDashboardData()
 
-  // 解析 Umami 数据
-  const activeVisitors = umami?.active?.visitors ?? 0
-  const pageviews = umami?.stats?.pageviews?.value ?? 0
-  const visitors = umami?.stats?.visitors?.value ?? 0
-  const bounceRate = umami?.stats?.bounces?.value && umami?.stats?.visits?.value
-    ? Math.round((umami.stats.bounces.value / umami.stats.visits.value) * 100)
-    : null
-  const avgDuration = umami?.stats?.totaltime?.value && umami?.stats?.visits?.value
-    ? Math.round(umami.stats.totaltime.value / umami.stats.visits.value)
-    : null
-
-  const topPages: { x: string; y: number }[] = umami?.pages ?? []
-  const topReferrers: { x: string; y: number }[] = umami?.referrers ?? []
-  const topBrowsers: { x: string; y: number }[] = umami?.browsers ?? []
-  const topDevices: { x: string; y: number }[] = umami?.devices ?? []
+  const hasUmami = !!(process.env.UMAMI_API_KEY && process.env.UMAMI_WEBSITE_ID)
 
   return (
     <div className="space-y-10">
@@ -143,97 +86,8 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      {/* 访客实时数据 */}
-      {umami && (
-        <section>
-          <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-xs font-mono uppercase tracking-[0.15em] text-muted-foreground">访客数据</h2>
-            <span className="text-xs font-mono text-muted-foreground">· 过去 24 小时</span>
-            <span className="flex items-center gap-1.5 text-xs font-mono text-green-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block animate-pulse" />
-              {activeVisitors} 人在线
-            </span>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border">
-            {[
-              { label: '页面浏览量', value: pageviews.toLocaleString(), sub: 'PV' },
-              { label: '独立访客', value: visitors.toLocaleString(), sub: 'UV' },
-              { label: '跳出率', value: bounceRate !== null ? `${bounceRate}%` : '-', sub: '单页即离开' },
-              { label: '平均访问时长', value: avgDuration !== null ? `${avgDuration}s` : '-', sub: '每次会话' },
-            ].map(({ label, value, sub }) => (
-              <div key={label} className="bg-card p-6">
-                <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">{label}</p>
-                <p className="font-heading text-4xl font-black text-foreground">{value}</p>
-                <p className="text-xs mt-2 font-mono text-muted-foreground">{sub}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* 页面 + 来源 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-border border border-border border-t-0">
-            {/* 热门页面 */}
-            <div className="bg-card p-5">
-              <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">热门页面 · 近 7 天</p>
-              <div className="space-y-2">
-                {topPages.length === 0 && <p className="text-xs text-muted-foreground font-mono">暂无数据</p>}
-                {topPages.map((p, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{i + 1}</span>
-                    <span className="text-xs text-foreground font-mono flex-1 truncate">{p.x || '/'}</span>
-                    <span className="font-mono text-xs text-brand font-medium">{p.y.toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 访客来源 */}
-            <div className="bg-card p-5">
-              <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">访客来源 · 近 7 天</p>
-              <div className="space-y-2">
-                {topReferrers.length === 0 && <p className="text-xs text-muted-foreground font-mono">暂无数据（或来自直接访问）</p>}
-                {topReferrers.map((r, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{i + 1}</span>
-                    <span className="text-xs text-foreground font-mono flex-1 truncate">{r.x || '直接访问'}</span>
-                    <span className="font-mono text-xs text-brand font-medium">{r.y.toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* 浏览器 + 设备 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-border border border-border border-t-0">
-            <div className="bg-card p-5">
-              <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">浏览器 · 近 7 天</p>
-              <div className="space-y-2">
-                {topBrowsers.length === 0 && <p className="text-xs text-muted-foreground font-mono">暂无数据</p>}
-                {topBrowsers.map((b, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{i + 1}</span>
-                    <span className="text-xs text-foreground font-mono flex-1">{b.x || '未知'}</span>
-                    <span className="font-mono text-xs text-brand font-medium">{b.y.toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-card p-5">
-              <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">设备类型 · 近 7 天</p>
-              <div className="space-y-2">
-                {topDevices.length === 0 && <p className="text-xs text-muted-foreground font-mono">暂无数据</p>}
-                {topDevices.map((d, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{i + 1}</span>
-                    <span className="text-xs text-foreground font-mono flex-1">{d.x || '未知'}</span>
-                    <span className="font-mono text-xs text-brand font-medium">{d.y.toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* 访客数据（Umami） */}
+      {hasUmami && <AdminUmamiStats />}
 
       {/* 用户数据 */}
       <section>

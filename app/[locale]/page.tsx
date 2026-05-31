@@ -141,30 +141,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== 分类网格 ===== */}
-      <section className="border-b border-border py-12 px-4 bg-background">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="font-heading text-xl font-black mb-6 uppercase tracking-tight">
-            按分类浏览
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px bg-border">
-            {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/skills?category=${cat.slug}`}
-                className="bg-card hover:bg-brand hover:text-white group p-6 text-center transition-colors"
-              >
-                <div className="text-2xl mb-2">{categoryIcons[cat.slug] ?? '📌'}</div>
-                <div className="text-sm font-medium group-hover:text-white">{cat.name}</div>
-                <div className="text-xs text-muted-foreground group-hover:text-white/70 mt-1">
-                  {cat._count.skills} Skills
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ===== Skills 网格 ===== */}
       <section className="py-12 px-4 bg-background">
         <div className="max-w-7xl mx-auto">
