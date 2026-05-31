@@ -20,9 +20,11 @@ const SORTS = [
 
 const GRADES = [
   { value: '', label: '全部等级' },
-  { value: 'A', label: 'S 级' },
-  { value: 'B', label: 'A 级' },
-  { value: 'C', label: 'B 级' },
+  { value: 'S', label: 'S 级' },
+  { value: 'A', label: 'A 级' },
+  { value: 'B', label: 'B 级' },
+  { value: 'C', label: 'C 级' },
+  { value: 'D', label: 'D 级' },
 ]
 
 export function SkillFilters({ categories }: Props) {

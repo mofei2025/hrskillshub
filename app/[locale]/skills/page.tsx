@@ -14,7 +14,7 @@ async function getSkills(searchParams: Record<string, string>) {
   const where: Prisma.SkillWhereInput = { status: 'PUBLISHED' }
   if (category) where.categories = { some: { slug: category } }
 
-  const VALID_GRADES: SecurityGrade[] = ['A', 'B', 'C', 'PENDING']
+  const VALID_GRADES: SecurityGrade[] = ['S', 'A', 'B', 'C', 'D', 'PENDING']
   if (grade && grade !== 'ALL' && VALID_GRADES.includes(grade as SecurityGrade)) {
     where.securityGrade = grade as SecurityGrade
   }
@@ -30,14 +30,17 @@ async function getSkills(searchParams: Record<string, string>) {
       { description: { contains: q, mode: 'insensitive' } },
     ]
 
-  const orderBy: Prisma.SkillOrderByWithRelationInput =
-    sort === 'installs'
-      ? { installCount: 'desc' }
-      : sort === 'favorites'
-        ? { favoriteCount: 'desc' }
-        : { publishedAt: 'desc' }
+  // 默认排序：安装次数降序，安装次数相同时安全等级高的优先
+  const gradeOrder: Record<string, number> = { S: 0, A: 1, B: 2, C: 3, D: 4, PENDING: 5 }
 
-  return db.skill.findMany({
+  const orderBy: Prisma.SkillOrderByWithRelationInput[] =
+    sort === 'installs'
+      ? [{ installCount: 'desc' }]
+      : sort === 'favorites'
+        ? [{ favoriteCount: 'desc' }]
+        : [{ installCount: 'desc' }, { publishedAt: 'desc' }]
+
+  const raw = await db.skill.findMany({
     where,
     orderBy,
     include: {
@@ -45,6 +48,15 @@ async function getSkills(searchParams: Record<string, string>) {
       categories: { orderBy: { order: 'asc' } },
     },
   })
+
+  // 默认排序时安装次数相同则按安全等级二次排序
+  if (!sort || sort === '') {
+    return raw.sort((a, b) => {
+      if (b.installCount !== a.installCount) return b.installCount - a.installCount
+      return (gradeOrder[a.securityGrade ?? 'PENDING'] ?? 5) - (gradeOrder[b.securityGrade ?? 'PENDING'] ?? 5)
+    })
+  }
+  return raw
 }
 
 export default async function SkillsPage({
