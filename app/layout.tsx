@@ -38,6 +38,9 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${archivoBlack.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="bcdbfe86-a769-463e-aaf3-4647e5a485c2" />
+      </head>
       <body>
         <ThemeProvider
           attribute="data-theme"
