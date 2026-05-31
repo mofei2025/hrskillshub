@@ -1,64 +1,54 @@
 # 部署说明
 
-## 1. 服务器准备
+本项目使用 **Node.js + PM2** 部署，不使用 Docker。
 
-在阿里云 ECS / 腾讯云 CVM 上安装 Docker 和 Docker Compose：
-
-```bash
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER
-```
-
-## 2. 上传代码
+## 快速部署
 
 ```bash
-git clone <你的代码仓库地址>
+# 1. 克隆代码
+git clone https://github.com/mofei2025/hrskillshub.git
 cd hrskillshub
+
+# 2. 安装依赖
+npm install
+
+# 3. 配置环境变量
+cp .env.example .env.local
+# 编辑 .env.local，填入数据库连接、NextAuth 密钥等
+
+# 4. 初始化数据库
+DATABASE_URL="你的连接串" npx prisma migrate deploy
+npx prisma generate
+
+# 5. 构建并启动
+npm run build
+pm2 start npm --name hrskillshub -- start
 ```
 
-## 3. 配置环境变量
+## 环境变量
 
-复制 `.env.example` 并填入生产环境的值：
+详见 `.env.example`，核心变量：
 
-```bash
-cp .env.example .env.prod
-```
+| 变量名 | 必填 | 说明 |
+|--------|------|------|
+| `DATABASE_URL` | ✅ | PostgreSQL 连接字符串 |
+| `AUTH_SECRET` | ✅ | NextAuth 加密密钥（`openssl rand -base64 32`） |
+| `NEXTAUTH_URL` | ✅ | 网站完整地址 |
+| `NEXT_PUBLIC_SITE_URL` | ✅ | 公开访问地址 |
+| `UMAMI_API_KEY` | ❌ | Umami 访客统计 API Key（管理后台需要） |
+| `UMAMI_WEBSITE_ID` | ❌ | Umami 网站 ID |
 
-编辑 `.env.prod`，填入以下内容：
-
-```
-DB_PASSWORD=你的数据库密码（自行设置一个强密码）
-AUTH_SECRET=你的 NextAuth 密钥（运行 openssl rand -base64 32 生成）
-NEXTAUTH_URL=https://你的域名
-NEXT_PUBLIC_SITE_URL=https://你的域名
-OSS_REGION=oss-cn-hangzhou（根据你的 OSS 地域填写）
-OSS_ACCESS_KEY_ID=你的阿里云 AccessKey ID
-OSS_ACCESS_KEY_SECRET=你的阿里云 AccessKey Secret
-OSS_BUCKET=你的 OSS Bucket 名称
-```
-
-## 4. 启动服务
-
-```bash
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
-```
-
-## 5. 初始化数据库
-
-```bash
-docker compose -f docker-compose.prod.yml exec app npx prisma migrate deploy
-docker compose -f docker-compose.prod.yml exec app npx prisma db seed
-```
-
-## 6. 更新部署
+## 更新部署
 
 ```bash
 git pull
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+npm install
+npm run build
+pm2 restart hrskillshub
 ```
 
-## 7. 查看日志
+## 注意事项
 
-```bash
-docker compose -f docker-compose.prod.yml logs -f app
-```
+- 如服务器使用 nvm，需先 `source /www/server/nvm/nvm.sh && nvm use 20`
+- `prisma migrate deploy` 必须显式传 `DATABASE_URL`，不会自动读取 `.env.local`
+- 创建管理员：`UPDATE "User" SET role = 'ADMIN' WHERE email = '你的邮箱';`
