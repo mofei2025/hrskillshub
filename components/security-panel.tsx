@@ -1,5 +1,5 @@
 import { SecurityGrade } from '@prisma/client'
-import { Shield, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
+import { Shield, CheckCircle, AlertTriangle, XCircle, Star } from 'lucide-react'
 
 interface SecurityNote {
   category: string
@@ -28,9 +28,11 @@ const threatCategories = [
 ]
 
 const gradeDisplay = {
-  A: { label: 'S 级', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', icon: CheckCircle },
-  B: { label: 'A 级', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20', icon: AlertTriangle },
-  C: { label: 'B 级', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/20', icon: XCircle },
+  S: { label: 'S 级', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-900/20', icon: Star },
+  A: { label: 'A 级', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', icon: CheckCircle },
+  B: { label: 'B 级', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20', icon: Shield },
+  C: { label: 'C 级', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20', icon: AlertTriangle },
+  D: { label: 'D 级', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20', icon: XCircle },
   PENDING: { label: '待评级', color: 'text-muted-foreground', bg: 'bg-[var(--hero-bg)]', icon: Shield },
 }
 
@@ -41,7 +43,7 @@ function isSecurityNote(item: unknown): item is SecurityNote {
 }
 
 export function SecurityPanel({ grade, score, notes }: SecurityPanelProps) {
-  const display = gradeDisplay[grade]
+  const display = gradeDisplay[grade] ?? gradeDisplay.PENDING
   const Icon = display.icon
   const securityNotes = Array.isArray(notes) ? notes.filter(isSecurityNote) : []
 

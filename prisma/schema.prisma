@@ -87,9 +87,11 @@ enum SkillStatus {
 }
 
 enum SecurityGrade {
+  S
   A
   B
   C
+  D
   PENDING
 }
 

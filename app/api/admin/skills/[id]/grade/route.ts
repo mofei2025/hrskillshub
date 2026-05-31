@@ -18,7 +18,7 @@ export async function PATCH(
     const body = await req.json()
     const { grade, score, notes, reason } = body
 
-    const validGrades: SecurityGrade[] = ['A', 'B', 'C', 'PENDING']
+    const validGrades: SecurityGrade[] = ['S', 'A', 'B', 'C', 'D', 'PENDING']
     if (!validGrades.includes(grade)) {
       return NextResponse.json({ error: '无效的评级值' }, { status: 400 })
     }

@@ -125,9 +125,11 @@ export function SkillRowActions({ skill, categories }: SkillRowActionsProps) {
         </select>
         <select value={skill.securityGrade} onChange={handleGradeChange} disabled={loading} className={selectCls}>
           <option value="PENDING">待评级</option>
-          <option value="A">S 级</option>
-          <option value="B">A 级</option>
-          <option value="C">B 级</option>
+          <option value="S">★ S 级</option>
+          <option value="A">◆ A 级</option>
+          <option value="B">● B 级</option>
+          <option value="C">▲ C 级</option>
+          <option value="D">▼ D 级</option>
         </select>
         <button
           onClick={() => setEditOpen(true)}
