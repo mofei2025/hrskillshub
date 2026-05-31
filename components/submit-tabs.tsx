@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 interface Category {
   id: string
@@ -13,9 +12,9 @@ interface Props {
 }
 
 export function SubmitTabs({ categories }: Props) {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -72,7 +71,8 @@ export function SubmitTabs({ categories }: Props) {
         setError(data.error ?? '提交失败，请重试')
         return
       }
-      router.push(`/skills/${data.skill?.id ?? ''}`)
+      setSuccess(true)
+      setForm({ title: '', description: '', categoryIds: [], type: 'CLAUDE_SKILL', githubUrl: '' })
     } finally {
       setLoading(false)
     }
@@ -80,6 +80,24 @@ export function SubmitTabs({ categories }: Props) {
 
   const inputCls = 'w-full border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-brand transition-colors'
   const labelCls = 'block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2'
+
+  if (success) {
+    return (
+      <div className="border border-green-200 bg-green-50 dark:bg-green-950/30 dark:border-green-800 p-8 text-center space-y-4">
+        <div className="text-4xl">✅</div>
+        <h3 className="font-heading text-xl font-black">提交成功！</h3>
+        <p className="text-sm text-muted-foreground">
+          你的 Skill 已进入审核队列，管理员审核通过后将公开展示。
+        </p>
+        <button
+          onClick={() => setSuccess(false)}
+          className="text-sm border border-brand text-brand px-5 py-2 hover:bg-brand hover:text-white transition-colors"
+        >
+          继续提交
+        </button>
+      </div>
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

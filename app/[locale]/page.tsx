@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { SkillCard } from '@/components/skill-card'
 
+// 安全评级排序优先级（数字越小越优先）
+const gradeOrder: Record<string, number> = { S: 0, A: 1, B: 2, C: 3, D: 4 }
+
 // 分类图标映射（slug → emoji）
 const categoryIcons: Record<string, string> = {
   recruitment: '🎯',
@@ -25,7 +28,6 @@ async function getHomeData() {
         author: { select: { nickname: true } },
       },
       orderBy: { installCount: 'desc' },
-      take: 9,
     }),
     Promise.all([
       db.skill.count({ where: { status: 'PUBLISHED' } }),
@@ -39,7 +41,13 @@ async function getHomeData() {
   const totalInstalls = installAgg._sum.installCount ?? 0
   const gradeAPercent = totalSkills > 0 ? Math.round((gradeACount / totalSkills) * 100) : 0
 
-  return { categories, featuredSkills, totalSkills, totalInstalls, totalUsers, gradeAPercent }
+  // 安装次数相同时，安全评级高的优先
+  const sortedSkills = [...featuredSkills].sort((a, b) => {
+    if (b.installCount !== a.installCount) return b.installCount - a.installCount
+    return (gradeOrder[a.securityGrade ?? 'D'] ?? 4) - (gradeOrder[b.securityGrade ?? 'D'] ?? 4)
+  }).slice(0, 9)
+
+  return { categories, featuredSkills: sortedSkills, totalSkills, totalInstalls, totalUsers, gradeAPercent }
 }
 
 export default async function HomePage() {

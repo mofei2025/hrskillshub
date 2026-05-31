@@ -19,14 +19,14 @@ export async function Nav() {
 
         {/* 主导航 */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+          <Link href="/" className="hover:text-brand transition-colors">
+            首页
+          </Link>
           <Link href="/skills" className="hover:text-brand transition-colors">
             Skills
           </Link>
           <Link href="/authors" className="hover:text-brand transition-colors">
             作者
-          </Link>
-          <Link href="/docs" className="hover:text-brand transition-colors text-muted-foreground">
-            文档
           </Link>
         </nav>
 
