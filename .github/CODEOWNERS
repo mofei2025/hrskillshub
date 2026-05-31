@@ -1,0 +1,4 @@
+# 管理后台相关文件，任何改动需要 @mofei2025 审批后才能合并
+/app/[locale]/admin/ @mofei2025
+/app/api/admin/ @mofei2025
+/components/admin-umami-stats.tsx @mofei2025
