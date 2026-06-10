@@ -202,3 +202,16 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  referrer  String?
+  browser   String?
+  device    String?
+  ip        String?  // SHA-256(IP+日期)，保护隐私，支持日维度 UV 去重
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+}

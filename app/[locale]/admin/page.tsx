@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { db } from '@/lib/db'
-import { AdminUmamiStats } from '@/components/admin-umami-stats'
+import { AdminAnalyticsStats } from '@/components/admin-analytics-stats'
 
 const gradeOrder: Record<string, number> = { S: 0, A: 1, B: 2, C: 3, D: 4 }
 
@@ -73,8 +73,6 @@ export default async function AdminPage() {
     totalInstalls, top10Skills,
   } = await getDashboardData()
 
-  const hasUmami = !!(process.env.UMAMI_API_KEY && process.env.UMAMI_WEBSITE_ID)
-
   return (
     <div className="space-y-10">
 
@@ -86,8 +84,8 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      {/* 访客数据（Umami） */}
-      {hasUmami && <AdminUmamiStats />}
+      {/* 访客数据 */}
+      <AdminAnalyticsStats />
 
       {/* 用户数据 */}
       <section>

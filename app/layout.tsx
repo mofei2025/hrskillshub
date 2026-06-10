@@ -5,6 +5,7 @@ import { Nav } from '@/components/nav'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/components/session-provider'
 import { ThemeProvider } from 'next-themes'
+import { PageTracker } from '@/components/page-tracker'
 
 const archivoBlack = Archivo_Black({
   weight: '400',
@@ -38,9 +39,6 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${archivoBlack.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
-      <head>
-        <script defer src="https://cloud.umami.is/script.js" data-website-id="bcdbfe86-a769-463e-aaf3-4647e5a485c2" />
-      </head>
       <body>
         <ThemeProvider
           attribute="data-theme"
@@ -52,6 +50,7 @@ export default function RootLayout({
             <Nav />
             <main>{children}</main>
             <Toaster />
+            <PageTracker />
           </AuthProvider>
         </ThemeProvider>
       </body>
