@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
     favorites,
     comments,
     hourlyRaw,
+    avgSessionRaw,
   ] = await Promise.all([
     // 总 PV/UV
     db.pageView.findMany({
@@ -124,6 +125,18 @@ export async function GET(req: NextRequest) {
       GROUP BY hour
       ORDER BY hour ASC
     `,
+    // 平均会话时长（按 sessionId 汇总各页停留时长，再取平均）
+    db.$queryRaw<{ avg_duration: number | null }[]>`
+      SELECT AVG(session_total) AS avg_duration
+      FROM (
+        SELECT "sessionId", SUM("duration") AS session_total
+        FROM "PageView"
+        WHERE "createdAt" >= ${start} AND "createdAt" <= ${end}
+          AND "sessionId" IS NOT NULL
+          AND "duration" IS NOT NULL AND "duration" > 0
+        GROUP BY "sessionId"
+      ) t
+    `,
   ])
 
   // 基础指标
@@ -186,6 +199,9 @@ export async function GET(req: NextRequest) {
     views: g._count.skillId,
   }))
 
+  // 平均会话时长（秒，取整）
+  const avgSessionDuration = Math.round(Number(avgSessionRaw[0]?.avg_duration ?? 0))
+
   // 每小时趋势格式化
   const hourlyTrend = hourlyRaw.map(r => ({
     hour: r.hour.toISOString(),
@@ -205,6 +221,7 @@ export async function GET(req: NextRequest) {
     pathFlows,
     searchKeywords: searchKeywords.map(g => ({ query: g.query, count: g._count.query })),
     hourlyTrend,
+    avgSessionDuration,
     newVisitors,
     returningVisitors,
     funnel: {

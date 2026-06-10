@@ -36,6 +36,7 @@ interface AnalyticsData {
   active: number
   pageviews: number
   visitors: number
+  avgSessionDuration: number
   newVisitors: number
   returningVisitors: number
   pages: { x: string; y: number }[]
@@ -54,6 +55,14 @@ interface AnalyticsData {
     favorites: number
     comments: number
   }
+}
+
+function fmtDuration(seconds: number) {
+  if (!seconds) return '—'
+  if (seconds < 60) return `${seconds}s`
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return s > 0 ? `${m}m ${s}s` : `${m}m`
 }
 
 function pct(a: number, b: number) {
@@ -170,10 +179,11 @@ export function AdminAnalyticsStats() {
       )}
 
       {/* 核心指标 */}
-      <div className={`grid grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border transition-opacity ${fade}`}>
+      <div className={`grid grid-cols-2 lg:grid-cols-5 gap-px bg-border border border-border transition-opacity ${fade}`}>
         {[
           { label: '页面浏览量', value: loading ? '…' : (data?.pageviews ?? 0).toLocaleString(), sub: 'PV' },
           { label: '独立访客', value: loading ? '…' : (data?.visitors ?? 0).toLocaleString(), sub: 'UV（按 IP 去重）' },
+          { label: '平均访问时长', value: loading ? '…' : fmtDuration(data?.avgSessionDuration ?? 0), sub: '每次会话' },
           { label: '新访客', value: loading ? '…' : (data?.newVisitors ?? 0).toLocaleString(), sub: '首次访问' },
           { label: '回访用户', value: loading ? '…' : (data?.returningVisitors ?? 0).toLocaleString(), sub: '历史已访问' },
         ].map(({ label, value, sub }) => (
