@@ -58,10 +58,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    // 取原始 IP
+    // 取原始 IP（优先 x-real-ip，它在 nginx 反代场景下最准确）
     const rawIp =
-      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
       req.headers.get('x-real-ip') ??
+      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+      req.ip ??
       'unknown'
 
     // 地理位置解析（先解析再哈希，不存原始 IP）

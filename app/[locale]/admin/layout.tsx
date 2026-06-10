@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/lib/auth'
-import { LayoutDashboard, ClipboardList, BookOpen, Users, Tag } from 'lucide-react'
+import { LayoutDashboard, ClipboardList, BookOpen, Users, Tag, TrendingUp } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/admin', label: '总览', icon: LayoutDashboard },
+  { href: '/admin/analytics', label: '活跃趋势', icon: TrendingUp },
   { href: '/admin/reviews', label: '审核队列', icon: ClipboardList },
   { href: '/admin/skills', label: 'Skills 管理', icon: BookOpen },
   { href: '/admin/users', label: '用户管理', icon: Users },
