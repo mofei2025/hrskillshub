@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
 
   // 新访客 vs 回访（基于 ipPersist）
   const allPersistIps = allViews.map(v => v.ipPersist).filter(Boolean) as string[]
-  const uniquePersistIps = [...new Set(allPersistIps)]
+  const uniquePersistIps = Array.from(new Set(allPersistIps))
   let newVisitors = 0
   let returningVisitors = 0
   if (uniquePersistIps.length > 0) {
