@@ -204,14 +204,33 @@ model VerificationToken {
 }
 
 model PageView {
-  id        String   @id @default(cuid())
-  path      String
-  referrer  String?
-  browser   String?
-  device    String?
-  ip        String?  // SHA-256(IP+日期)，保护隐私，支持日维度 UV 去重
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  path       String
+  referrer   String?
+  browser    String?
+  device     String?
+  ip         String?      // SHA-256(IP+日期)，日维度 UV 去重
+  ipPersist  String?      // SHA-256(IP+盐)，跨天稳定，用于新/回访判断
+  sessionId  String?      // 会话ID，用于路径分析
+  duration   Int?         // 停留时长（秒），下次导航时回填
+  skillId    String?      // 技能详情页自动解析
+  province   String?      // 省份（geoip 解析）
+  city       String?      // 城市（geoip 解析）
+  createdAt  DateTime @default(now())
 
   @@index([createdAt])
   @@index([path])
+  @@index([sessionId])
+  @@index([skillId])
+}
+
+model SearchEvent {
+  id        String   @id @default(cuid())
+  query     String
+  sessionId String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([query])
 }
