@@ -26,21 +26,20 @@ interface DauData {
   totalPv: number
 }
 
-function BarChart({ items, valueKey, color = 'brand' }: {
+function BarChart({ items, valueKey }: {
   items: { label: string; value: number }[]
   valueKey: string
-  color?: string
 }) {
   if (!items.length) return <p className="text-xs text-muted-foreground font-mono py-4">暂无数据</p>
   const max = Math.max(...items.map(i => i.value), 1)
   return (
-    <div className="flex items-end gap-px h-24 mt-3">
+    <div className="flex h-24 mt-3 gap-px">
       {items.map((item, i) => {
         const h = Math.max((item.value / max) * 100, 2)
         return (
-          <div key={i} className="flex-1 flex flex-col items-center group relative">
+          <div key={i} className="flex-1 relative group">
             <div
-              className={`w-full bg-brand/50 hover:bg-brand transition-colors cursor-default`}
+              className="absolute bottom-0 w-full bg-brand/50 hover:bg-brand transition-colors cursor-default"
               style={{ height: `${h}%` }}
             />
             <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:flex
