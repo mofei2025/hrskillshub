@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
+const PRESET_KEYWORDS = ['面试话术', '绩效评估', '薪酬分析', '入职培训', 'OKR 助手', '离职分析']
+
+const PROVINCE_MAP: Record<string, string> = {
+  BJ: '北京市', TJ: '天津市', HE: '河北省', SX: '山西省', NM: '内蒙古自治区',
+  LN: '辽宁省', JL: '吉林省', HL: '黑龙江省', SH: '上海市', JS: '江苏省',
+  ZJ: '浙江省', AH: '安徽省', FJ: '福建省', JX: '江西省', SD: '山东省',
+  HA: '河南省', HB: '湖北省', HN: '湖南省', GD: '广东省', GX: '广西壮族自治区',
+  HI: '海南省', CQ: '重庆市', SC: '四川省', GZ: '贵州省', YN: '云南省',
+  XZ: '西藏自治区', SN: '陕西省', GS: '甘肃省', QH: '青海省', NX: '宁夏回族自治区',
+  XJ: '新疆维吾尔自治区', TW: '台湾省', HK: '香港特别行政区', MO: '澳门特别行政区',
+}
+
+function getProvinceName(code: string | null): string {
+  if (!code) return '未知'
+  const key = code.replace(/^CN-/, '')
+  return PROVINCE_MAP[key] ?? code
+}
+
 export async function GET(req: NextRequest) {
   const session = await auth()
   if (!session?.user || session.user.role !== 'ADMIN') {
@@ -104,7 +122,10 @@ export async function GET(req: NextRequest) {
     // 搜索关键词
     db.searchEvent.groupBy({
       by: ['query'],
-      where: { createdAt: { gte: start, lte: end } },
+      where: {
+        createdAt: { gte: start, lte: end },
+        NOT: { query: { in: PRESET_KEYWORDS } },
+      },
       _count: { query: true },
       orderBy: { _count: { query: 'desc' } },
       take: 10,
@@ -216,7 +237,7 @@ export async function GET(req: NextRequest) {
     referrers: referrerGroups.map(g => ({ x: g.referrer ?? '', y: g._count.referrer })),
     browsers: browserGroups.map(g => ({ x: g.browser ?? '未知', y: g._count.browser })),
     devices: deviceGroups.map(g => ({ x: g.device ?? '未知', y: g._count.device })),
-    provinces: provinceGroups.map(g => ({ x: g.province ?? '未知', y: g._count.province })),
+    provinces: provinceGroups.map(g => ({ x: getProvinceName(g.province), y: g._count.province })),
     skillViews,
     pathFlows,
     searchKeywords: searchKeywords.map(g => ({ query: g.query, count: g._count.query })),
