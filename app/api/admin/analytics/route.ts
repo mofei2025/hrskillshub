@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
-const PRESET_KEYWORDS = ['面试话术', '绩效评估', '薪酬分析', '入职培训', 'OKR 助手', '离职分析']
+const PRESET_KEYWORDS = ['面试话术', '绩效评估', '薪酬分析', '入职培训', 'OKR 助手', 'okr 助手', 'OKR助手', 'okr助手', '离职分析']
 
 const PROVINCE_MAP: Record<string, string> = {
   BJ: '北京市', TJ: '天津市', HE: '河北省', SX: '山西省', NM: '内蒙古自治区',
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
       where: { createdAt: { gte: start, lte: end }, province: { not: null } },
       _count: { province: true },
       orderBy: { _count: { province: 'desc' } },
-      take: 8,
+      take: 10,
     }),
     // 技能详情页
     db.pageView.groupBy({

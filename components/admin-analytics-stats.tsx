@@ -103,11 +103,14 @@ const REFERRER_DOMAIN_MAP: Record<string, string> = {
   'segmentfault.com': 'SegmentFault',
 }
 
-function referrerToName(url: string): string {
+function referrerToName(url: string, skillMap?: Record<string, string>): string {
   if (!url) return '直接访问'
   try {
-    const hostname = new URL(url).hostname.replace(/^www\./, '')
-    if (typeof window !== 'undefined' && hostname === window.location.hostname) return '站内跳转'
+    const u = new URL(url)
+    const hostname = u.hostname.replace(/^www\./, '')
+    if (typeof window !== 'undefined' && hostname === window.location.hostname) {
+      return pathToName(u.pathname, skillMap)
+    }
     return REFERRER_DOMAIN_MAP[hostname] ?? hostname
   } catch {
     return url.slice(0, 30)
@@ -321,7 +324,7 @@ export function AdminAnalyticsStats() {
             {(data?.referrers ?? []).map((r, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{String(i+1).padStart(2,'0')}</span>
-                <span className="text-xs text-foreground font-mono flex-1 truncate">{referrerToName(r.x)}</span>
+                <span className="text-xs text-foreground font-mono flex-1 truncate">{referrerToName(r.x, skillTitleMap)}</span>
                 <span className="font-mono text-xs text-brand font-medium">{r.y.toLocaleString()}</span>
               </div>
             ))}
