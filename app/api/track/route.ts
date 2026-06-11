@@ -17,10 +17,15 @@ function parseUA(ua: string) {
     /firefox\//.test(lc) ? 'Firefox' :
     /safari\//.test(lc) && !/chrome/.test(lc) ? 'Safari' :
     'Other'
-  const device =
-    /mobile|android|iphone/.test(lc) ? 'Mobile' :
-    /ipad|tablet/.test(lc) ? 'Tablet' :
-    'Desktop'
+  let device: string
+  if (/iphone/.test(lc)) device = 'iPhone'
+  else if (/ipad/.test(lc)) device = 'iPad'
+  else if (/android/.test(lc) && /mobile/.test(lc)) device = 'Android'
+  else if (/android/.test(lc)) device = 'Android Tablet'
+  else if (/macintosh|mac os x/.test(lc)) device = 'Mac'
+  else if (/windows/.test(lc)) device = 'Windows'
+  else if (/linux/.test(lc)) device = 'Linux'
+  else device = 'Desktop'
   return { browser, device }
 }
 
