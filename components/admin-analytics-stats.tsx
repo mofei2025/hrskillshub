@@ -57,6 +57,77 @@ interface AnalyticsData {
   }
 }
 
+const PATH_NAME_MAP: Record<string, string> = {
+  '/': '首页',
+  '/skills': 'Skills 浏览',
+  '/submit': '提交 Skill',
+  '/login': '登录',
+  '/register': '注册',
+  '/profile': '个人主页',
+  '/admin': '管理后台',
+  '/admin/analytics': '数据分析',
+  '/admin/users': '用户管理',
+  '/admin/skills': 'Skills 管理',
+  '/admin/reviews': '审核队列',
+  '/admin/categories': '分类管理',
+}
+
+function pathToName(path: string, skillMap?: Record<string, string>): string {
+  if (!path || path === '/') return '首页'
+  const stripped = path.replace(/^\/(zh|en)/, '') || '/'
+  const skillMatch = stripped.match(/^\/skills\/([^/?#]+)/)
+  if (skillMatch && !['page', 'new', 'edit'].includes(skillMatch[1])) {
+    return skillMap?.[skillMatch[1]] ?? '技能详情'
+  }
+  const authorMatch = stripped.match(/^\/authors\/([^/?#]+)/)
+  if (authorMatch) return `作者: ${authorMatch[1]}`
+  return PATH_NAME_MAP[stripped] ?? PATH_NAME_MAP[path] ?? path
+}
+
+const REFERRER_DOMAIN_MAP: Record<string, string> = {
+  'google.com': 'Google',
+  'google.com.hk': 'Google',
+  'google.co.jp': 'Google',
+  'baidu.com': '百度',
+  'github.com': 'GitHub',
+  'zhihu.com': '知乎',
+  't.co': 'Twitter / X',
+  'twitter.com': 'Twitter / X',
+  'x.com': 'Twitter / X',
+  'weixin.qq.com': '微信',
+  'mp.weixin.qq.com': '微信公众号',
+  'juejin.cn': '掘金',
+  'v2ex.com': 'V2EX',
+  'bing.com': 'Bing',
+  'linkedin.com': 'LinkedIn',
+  'segmentfault.com': 'SegmentFault',
+}
+
+function referrerToName(url: string): string {
+  if (!url) return '直接访问'
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, '')
+    if (typeof window !== 'undefined' && hostname === window.location.hostname) return '站内跳转'
+    return REFERRER_DOMAIN_MAP[hostname] ?? hostname
+  } catch {
+    return url.slice(0, 30)
+  }
+}
+
+const DEVICE_GROUPS: Record<string, string[]> = {
+  '移动设备': ['Mobile', 'iPhone', 'Android'],
+  '平板设备': ['Tablet', 'iPad', 'Android Tablet'],
+  '桌面设备': ['Desktop', 'Mac', 'Windows', 'Linux'],
+}
+
+function groupDevices(devices: { x: string; y: number }[]) {
+  return Object.entries(DEVICE_GROUPS).map(([group, subtypes]) => {
+    const items = devices.filter(d => subtypes.includes(d.x))
+    const total = items.reduce((s, d) => s + d.y, 0)
+    return { group, total, items }
+  }).filter(g => g.total > 0)
+}
+
 function fmtDuration(seconds: number) {
   if (!seconds) return '—'
   if (seconds < 60) return `${seconds}s`
@@ -75,17 +146,16 @@ function BarChart({ data }: { data: { hour: string; count: number }[] }) {
   if (!data.length) return <p className="text-xs text-muted-foreground font-mono">暂无数据</p>
   const max = Math.max(...data.map(d => d.count), 1)
   return (
-    <div className="flex items-end gap-px h-16 mt-2">
+    <div className="flex h-16 mt-2 gap-px">
       {data.map((d, i) => {
         const h = Math.max((d.count / max) * 100, 2)
         const hour = new Date(d.hour).getHours()
         return (
-          <div key={i} className="flex-1 flex flex-col items-center gap-0.5 group relative">
+          <div key={i} className="flex-1 relative group">
             <div
-              className="w-full bg-brand/60 hover:bg-brand transition-colors"
+              className="absolute bottom-0 w-full bg-brand/60 hover:bg-brand transition-colors"
               style={{ height: `${h}%` }}
             />
-            {/* 悬停提示 */}
             <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:flex
               bg-foreground text-background text-xs font-mono px-1.5 py-0.5 whitespace-nowrap z-10">
               {hour}时 {d.count}
@@ -131,6 +201,10 @@ export function AdminAnalyticsStats() {
   const btnActive = 'border-brand text-brand bg-brand/5'
   const btnInactive = 'border-border text-muted-foreground hover:border-foreground hover:text-foreground'
   const fade = loading ? 'opacity-50' : ''
+
+  const skillTitleMap = Object.fromEntries(
+    (data?.skillViews ?? []).map(s => [s.skillId, s.title])
+  )
 
   const funnel = data?.funnel
   const funnelSteps = funnel ? [
@@ -234,7 +308,7 @@ export function AdminAnalyticsStats() {
             {(data?.pages ?? []).map((p, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{String(i+1).padStart(2,'0')}</span>
-                <span className="text-xs text-foreground font-mono flex-1 truncate">{p.x || '/'}</span>
+                <span className="text-xs text-foreground font-mono flex-1 truncate">{pathToName(p.x, skillTitleMap)}</span>
                 <span className="font-mono text-xs text-brand font-medium">{p.y.toLocaleString()}</span>
               </div>
             ))}
@@ -247,7 +321,7 @@ export function AdminAnalyticsStats() {
             {(data?.referrers ?? []).map((r, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{String(i+1).padStart(2,'0')}</span>
-                <span className="text-xs text-foreground font-mono flex-1 truncate">{r.x || '直接访问'}</span>
+                <span className="text-xs text-foreground font-mono flex-1 truncate">{referrerToName(r.x)}</span>
                 <span className="font-mono text-xs text-brand font-medium">{r.y.toLocaleString()}</span>
               </div>
             ))}
@@ -302,13 +376,20 @@ export function AdminAnalyticsStats() {
         </div>
         <div className="bg-card p-5">
           <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">设备类型</p>
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {!loading && (data?.devices ?? []).length === 0 && <p className="text-xs text-muted-foreground font-mono">暂无数据</p>}
-            {(data?.devices ?? []).map((d, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{String(i+1).padStart(2,'0')}</span>
-                <span className="text-xs text-foreground font-mono flex-1">{d.x}</span>
-                <span className="font-mono text-xs text-brand font-medium">{d.y.toLocaleString()}</span>
+            {groupDevices(data?.devices ?? []).map(g => (
+              <div key={g.group}>
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-xs font-mono text-foreground font-medium flex-1">{g.group}</span>
+                  <span className="font-mono text-xs text-brand font-medium">{g.total.toLocaleString()}</span>
+                </div>
+                {g.items.length > 1 && g.items.map(item => (
+                  <div key={item.x} className="flex items-center gap-3 pl-3 mb-0.5">
+                    <span className="text-xs text-muted-foreground font-mono flex-1">{item.x}</span>
+                    <span className="font-mono text-xs text-muted-foreground">{item.y.toLocaleString()}</span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
@@ -336,9 +417,9 @@ export function AdminAnalyticsStats() {
           {(data?.pathFlows ?? []).map((f, i) => (
             <div key={i} className="flex items-center gap-2">
               <span className="font-mono text-xs text-muted-foreground w-4 shrink-0">{String(i+1).padStart(2,'0')}</span>
-              <span className="text-xs font-mono text-muted-foreground truncate max-w-[120px]">{f.from || '/'}</span>
+              <span className="text-xs font-mono text-muted-foreground truncate max-w-[120px]">{pathToName(f.from, skillTitleMap) || '首页'}</span>
               <span className="text-xs text-muted-foreground font-mono">→</span>
-              <span className="text-xs font-mono text-foreground flex-1 truncate">{f.to || '/'}</span>
+              <span className="text-xs font-mono text-foreground flex-1 truncate">{pathToName(f.to, skillTitleMap) || '首页'}</span>
               <span className="font-mono text-xs text-brand font-medium">{f.count}</span>
             </div>
           ))}
