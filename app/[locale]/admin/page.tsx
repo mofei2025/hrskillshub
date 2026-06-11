@@ -84,9 +84,6 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      {/* 访客数据 */}
-      <AdminAnalyticsStats />
-
       {/* 用户数据 */}
       <section>
         <h2 className="text-xs font-mono uppercase tracking-[0.15em] text-muted-foreground mb-4">用户数据</h2>
@@ -107,6 +104,9 @@ export default async function AdminPage() {
           ))}
         </div>
       </section>
+
+      {/* 访客数据 */}
+      <AdminAnalyticsStats />
 
       {/* Skills 数据 */}
       <section>
